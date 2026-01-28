@@ -1,0 +1,116 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}الإعدادات - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}الإعدادات{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[960px] mx-auto px-4 sm:px-10 md:px-20 lg:px-40 py-8">
+    <!-- Page Heading -->
+    <div class="mb-8">
+        <h1 class="text-[#111718] dark:text-white text-4xl font-black leading-tight">الإعدادات العامة</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">تخصيص إعدادات العيادة والحساب</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Settings Sidebar -->
+        <div class="w-full lg:w-64 flex-shrink-0">
+            <div
+                class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <nav class="flex flex-col p-2 space-y-1">
+                    <button
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold transition-colors">
+                        <span class="material-symbols-outlined">clinic_medical</span>
+                        بيانات العيادة
+                    </button>
+                    <button
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="material-symbols-outlined">manage_accounts</span>
+                        إدارة المستخدمين
+                    </button>
+                    <button
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="material-symbols-outlined">notifications_active</span>
+                        الإشعارات
+                    </button>
+                    <button
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="material-symbols-outlined">backup</span>
+                        النسخ الاحتياطي
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="flex-1">
+            <div
+                class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 md:p-8">
+                <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-4 mb-6">
+                    <span class="material-symbols-outlined text-primary">edit_square</span>
+                    <h3 class="text-lg font-bold">تعديل بيانات العيادة</h3>
+                </div>
+
+                <form class="space-y-6" onsubmit="event.preventDefault();">
+                    <!-- Logo Upload -->
+                    <div class="flex items-center gap-6">
+                        <div
+                            class="size-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-4xl border-2 border-dashed border-primary">
+                            <span class="material-symbols-outlined text-4xl">add_photo_alternate</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-[#111718] dark:text-white mb-1">شعار العيادة</h4>
+                            <p class="text-sm text-gray-500 mb-3">JPG, PNG بحد أقصى 2MB</p>
+                            <button
+                                class="text-sm font-bold text-primary border border-primary/30 px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                تغيير الصورة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Clinic Name -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">اسم العيادة</label>
+                        <input
+                            class="form-input w-full px-4 h-12 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary"
+                            value="عيادة الأسنان التخصصية" type="text" />
+                    </div>
+
+                    <!-- Address & Phone -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">رقم الهاتف</label>
+                            <input
+                                class="form-input w-full px-4 h-12 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary"
+                                value="0501234567" type="tel" dir="ltr" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">البريد
+                                الإلكتروني</label>
+                            <input
+                                class="form-input w-full px-4 h-12 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary"
+                                value="info@dentalclinic.com" type="email" dir="ltr" />
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">العنوان</label>
+                        <textarea
+                            class="form-input w-full p-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary min-h-24">الرياض، حي العليا، شارع التخصصي</textarea>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="pt-4 flex justify-end">
+                        <button
+                            class="flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
+                            <span class="material-symbols-outlined">save</span>
+                            <span>حفظ التغييرات</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

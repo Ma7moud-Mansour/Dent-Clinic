@@ -1,0 +1,175 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}التقارير والإحصائيات - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}التقارير والإحصائيات{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[1200px] mx-auto px-4 sm:px-10 md:px-20 lg:px-40 py-8">
+    <!-- Page Heading -->
+    <div class="mb-8">
+        <h1 class="text-[#111718] dark:text-white text-4xl font-black leading-tight">التقارير التحليلية</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">نظرة شاملة على أداء العيادة والإيرادات</p>
+    </div>
+
+    <!-- Date Range Picker -->
+    <div
+        class="bg-white dark:bg-[#1a2e30] p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-gray-400">calendar_month</span>
+            <span class="font-bold text-[#111718] dark:text-white text-sm">الفترة الزمنية:</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-md shadow-primary/20">هذا
+                الشهر</button>
+            <button
+                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">آخر
+                3 أشهر</button>
+            <button
+                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">هذا
+                العام</button>
+            <button
+                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">مخصص</button>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">إجمالي الدخل</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">124,500 <span
+                    class="text-sm font-normal text-gray-500">ر.س</span></h3>
+            <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_up</span>
+                +15% زيادة
+            </p>
+        </div>
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">عدد المرضى الجدد</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">45 <span
+                    class="text-sm font-normal text-gray-500">مريض</span></h3>
+            <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_up</span>
+                +5% زيادة
+            </p>
+        </div>
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">المواعيد المكتملة</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">320 <span
+                    class="text-sm font-normal text-gray-500">موعد</span></h3>
+            <p class="text-gray-400 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">remove</span>
+                0% تغيير
+            </p>
+        </div>
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">متوسط الرضا</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">4.8 <span
+                    class="text-sm font-normal text-gray-500">/ 5</span></h3>
+            <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">star</span>
+                ممتاز
+            </p>
+        </div>
+    </div>
+
+    <!-- Charts / Detailed Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Revenue Chart Placeholder -->
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-[#111718] dark:text-white">تحليل الإيرادات</h3>
+                <button class="text-primary text-sm font-bold hover:underline">تحميل التقرير</button>
+            </div>
+            <div class="h-64 flex items-end justify-between gap-2 px-4">
+                <!-- Fake Bars -->
+                <div class="w-full bg-primary/10 rounded-t-lg relative group h-[40%]">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">40%</span>
+                </div>
+                <div class="w-full bg-primary/20 rounded-t-lg relative group h-[60%]">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">60%</span>
+                </div>
+                <div class="w-full bg-primary/40 rounded-t-lg relative group h-[35%]">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">35%</span>
+                </div>
+                <div class="w-full bg-primary/30 rounded-t-lg relative group h-[80%]">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">80%</span>
+                </div>
+                <div class="w-full bg-primary/50 text-white rounded-t-lg relative group h-[65%]">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">65%</span>
+                </div>
+                <div
+                    class="w-full bg-primary text-white rounded-t-lg relative group h-[90%] shadow-lg shadow-primary/20">
+                    <span
+                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">90%</span>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4 text-xs font-bold text-gray-400 uppercase">
+                <span>يناير</span>
+                <span>فبراير</span>
+                <span>مارس</span>
+                <span>أبريل</span>
+                <span>مايو</span>
+                <span>يونيو</span>
+            </div>
+        </div>
+
+        <!-- Appointment Types -->
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-[#111718] dark:text-white">أكثر الخدمات طلباً</h3>
+                <button class="text-gray-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <!-- Item -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span class="text-[#111718] dark:text-white">تنظيف الأسنان</span>
+                        <span class="text-gray-500">45%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span class="text-[#111718] dark:text-white">الحشوات التجميلية</span>
+                        <span class="text-gray-500">25%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div class="bg-purple-500 h-full rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span class="text-[#111718] dark:text-white">التقويم</span>
+                        <span class="text-gray-500">20%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div class="bg-orange-500 h-full rounded-full" style="width: 20%"></div>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span class="text-[#111718] dark:text-white">أخرى</span>
+                        <span class="text-gray-500">10%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div class="bg-gray-400 h-full rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

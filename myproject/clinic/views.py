@@ -17,3 +17,24 @@ def patient_profile(request, id):
 
 def visits(request):
     return render(request, 'clinic/visits.html')
+
+def appointments_list(request):
+    return render(request, 'clinic/appointments_list.html')
+
+def add_appointment(request):
+    return render(request, 'clinic/add_appointment.html')
+
+def invoices_list(request):
+    return render(request, 'clinic/invoices_list.html')
+
+def add_invoice(request):
+    return render(request, 'clinic/add_invoice.html')
+
+def invoice_detail(request, id):
+    return render(request, 'clinic/invoice_detail.html')
+
+def reports(request):
+    return render(request, 'clinic/reports.html')
+
+def settings(request):
+    return render(request, 'clinic/settings.html')

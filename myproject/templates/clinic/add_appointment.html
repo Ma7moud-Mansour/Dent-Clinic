@@ -1,0 +1,135 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}حجز موعد - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}حجز موعد جديد{% endblock %}
+
+{% block page_content %}
+<div class="flex justify-center py-10 px-4">
+    <div class="w-full max-w-[960px] flex flex-col gap-6">
+        <!-- Page Heading -->
+        <div class="flex flex-col gap-2 px-4 md:px-0">
+            <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined">event_available</span>
+                <span class="text-sm font-bold uppercase tracking-wider">موعد جديد</span>
+            </div>
+            <h1
+                class="text-[#111718] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                بيانات الموعد</h1>
+            <p class="text-[#618689] text-base font-normal leading-normal">املأ التفاصيل أدناه لحجز موعد جديد للمريض</p>
+        </div>
+        <!-- Form Card -->
+        <div
+            class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#dbe5e6] dark:border-[#2a3f41] overflow-hidden">
+            <div class="p-6 md:p-8 space-y-8">
+                <!-- Section: Appointment Info -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">calendar_clock</span>
+                        <h3 class="text-lg font-bold">تفاصيل الوقت والطبيب</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Patient Selection -->
+                        <div class="flex flex-col gap-2 md:col-span-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">اختيار
+                                المريض</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person_search</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    placeholder="ابحث عن المريض بالاسم أو رقم الملف..." type="text"
+                                    list="patients_list" />
+                                <datalist id="patients_list">
+                                    <option value="أحمد محمد علي - #D-1029">
+                                    <option value="سارة خالد العتيبي - #D-1045">
+                                </datalist>
+                            </div>
+                        </div>
+                        <!-- Date -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">تاريخ
+                                الموعد</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">calendar_month</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    type="date" />
+                            </div>
+                        </div>
+                        <!-- Time -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الوقت</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">schedule</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    type="time" />
+                            </div>
+                        </div>
+                        <!-- Doctor -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الطبيب
+                                المعالج</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">stethoscope</span>
+                                <select
+                                    class="form-select w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                                    <option>د. أحمد خالد (تقويم)</option>
+                                    <option>د. سارة الهاشمي (تجميل)</option>
+                                    <option>د. ماجد الفهد (جراحة)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Procedure Type -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">نوع الإجراء</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">dentistry</span>
+                                <select
+                                    class="form-select w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                                    <option>فحص دوري</option>
+                                    <option>تنظيف أسنان</option>
+                                    <option>حشو</option>
+                                    <option>خلع</option>
+                                    <option>تقويم</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Notes -->
+                <div class="space-y-6 pt-4">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">notes</span>
+                        <h3 class="text-lg font-bold">ملاحظات إضافية</h3>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <textarea
+                            class="form-input w-full p-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary min-h-32 placeholder:text-[#618689]"
+                            placeholder="أية ملاحظات خاصة بهذا الموعد..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- Action Buttons -->
+            <div
+                class="bg-background-light/50 dark:bg-black/20 p-6 md:px-8 flex flex-col sm:flex-row gap-4 justify-end">
+                <button
+                    class="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-[#2a3f41] transition-all">
+                    <span>إلغاء</span>
+                </button>
+                <button
+                    class="flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span>تأكيد الحجز</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
