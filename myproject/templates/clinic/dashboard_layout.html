@@ -29,26 +29,26 @@
                     <span class="material-symbols-outlined">group</span>
                     <span class="text-sm font-medium">المرضى</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'visits' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
-                    href="{% url 'visits' %}">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'visits' in request.path or 'appointments' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'appointments_list' %}">
                     <span class="material-symbols-outlined">calendar_month</span>
                     <span class="text-sm font-medium">المواعيد</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
-                    href="#">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'invoices' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'invoices_list' %}">
                     <span class="material-symbols-outlined">payments</span>
                     <span class="text-sm font-medium">الفواتير</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
-                    href="#">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'reports' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'reports' %}">
                     <span class="material-symbols-outlined">analytics</span>
                     <span class="text-sm font-medium">التقارير</span>
                 </a>
             </nav>
             <!-- Bottom Sidebar -->
             <div class="mt-auto pt-6 border-t border-[#dbe5e6] dark:border-[#2a3b3d]">
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
-                    href="#">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'settings' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'settings' %}">
                     <span class="material-symbols-outlined">settings</span>
                     <span class="text-sm font-medium">الإعدادات</span>
                 </a>

@@ -1,0 +1,168 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}الفواتير - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}الفواتير والمدفوعات{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[1200px] mx-auto px-4 sm:px-10 md:px-20 lg:px-40 py-8">
+    <!-- Page Heading -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-[#111718] dark:text-white text-4xl font-black leading-tight">سجل الفواتير</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">إدارة المعاملات المالية والفواتير</p>
+        </div>
+        <a href="{% url 'add_invoice' %}"
+            class="flex min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold hover:brightness-105 transition-all shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined text-lg">add</span>
+            <span>إنشاء فاتورة جديدة</span>
+        </a>
+    </div>
+
+    <!-- Filters and Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">إجمالي المدفوعات (اليوم)</p>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">4,250 <span
+                        class="text-sm font-normal">ر.س</span></h3>
+            </div>
+            <div
+                class="size-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                <span class="material-symbols-outlined">payments</span>
+            </div>
+        </div>
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">فواتير معلقة</p>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">1,800 <span
+                        class="text-sm font-normal">ر.س</span></h3>
+            </div>
+            <div
+                class="size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
+                <span class="material-symbols-outlined">pending</span>
+            </div>
+        </div>
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">إجمالي الفواتير (الشهر)</p>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">45,200 <span
+                        class="text-sm font-normal">ر.س</span></h3>
+            </div>
+            <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined">receipt_long</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div
+        class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <h2 class="font-bold text-lg text-[#111718] dark:text-white">أحدث الفواتير</h2>
+            <div class="flex gap-2">
+                <button
+                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-lg">filter_list</span> فلترة
+                </button>
+                <button
+                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-lg">download</span> تصدير
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-[#1e3436]">
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300"># الفاتورة</th>
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">المريض</th>
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">التاريخ</th>
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">المبلغ</th>
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الحالة</th>
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الإجراءات
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
+                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-001</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">أحمد محمد علي</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">20 مايو 2024</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">350 ر.س</td>
+                        <td class="px-6 py-5 text-center">
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">مدفوع</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'invoice_detail' 1 %}"
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="عرض التفاصيل">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                                <button
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="تحميل PDF">
+                                    <span class="material-symbols-outlined">download</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
+                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-002</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">سارة خالد العتيبي</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">19 مايو 2024</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">1,200 ر.س</td>
+                        <td class="px-6 py-5 text-center">
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">معلق</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'invoice_detail' 1 %}"
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="عرض التفاصيل">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                                <button
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="تحميل PDF">
+                                    <span class="material-symbols-outlined">download</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
+                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-003</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">فهد بن عيسى</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">18 مايو 2024</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">5,000 ر.س</td>
+                        <td class="px-6 py-5 text-center">
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">متأخر</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'invoice_detail' 1 %}"
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="عرض التفاصيل">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                                <button
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                    title="تحميل PDF">
+                                    <span class="material-symbols-outlined">download</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

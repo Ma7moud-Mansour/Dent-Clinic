@@ -1,0 +1,127 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}تفاصيل الفاتورة #INV-2024-001 - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}تفاصيل الفاتورة{% endblock %}
+
+{% block page_content %}
+<div class="py-10 px-4 flex justify-center">
+    <div class="w-full max-w-[800px] flex flex-col gap-6">
+        <!-- Actions -->
+        <div class="flex justify-end gap-2 print:hidden">
+            <button
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-[#1a2e30] border border-gray-200 dark:border-gray-700 text-[#111718] dark:text-white font-bold hover:bg-gray-50 dark:hover:bg-[#23383a] transition-colors">
+                <span class="material-symbols-outlined">print</span>
+                <span>طباعة</span>
+            </button>
+            <button
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-bold hover:brightness-105 transition-colors shadow-md shadow-primary/20">
+                <span class="material-symbols-outlined">send</span>
+                <span>إسال للمريض</span>
+            </button>
+        </div>
+
+        <!-- Invoice Paper -->
+        <div
+            class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 p-10 md:p-16 relative overflow-hidden">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-12">
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-primary flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined">dentistry</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-[#111718] dark:text-white">عيادة الأسنان</h1>
+                            <p class="text-xs text-[#618689]">نظام الإدارة الطبية</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h2 class="text-4xl font-black text-gray-200 dark:text-gray-700 tracking-widest uppercase">فاتورة
+                    </h2>
+                    <p class="font-mono text-[#111718] dark:text-white font-bold mt-2">#INV-2024-001</p>
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div
+                class="flex flex-col md:flex-row justify-between gap-8 mb-12 pb-12 border-b border-gray-100 dark:border-gray-800">
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">بيانات المريض</h3>
+                    <p class="text-lg font-bold text-[#111718] dark:text-white">أحمد محمد علي</p>
+                    <p class="text-sm text-gray-500">حي العليا، الرياض</p>
+                    <p class="text-sm text-gray-500">0501234567</p>
+                </div>
+                <div class="flex flex-col gap-1 text-left">
+                    <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">تفاصيل الدفع</h3>
+                    <div class="flex justify-between gap-8">
+                        <span class="text-gray-500">تاريخ الإصدار:</span>
+                        <span class="font-bold text-[#111718] dark:text-white">20 مايو 2024</span>
+                    </div>
+                    <div class="flex justify-between gap-8">
+                        <span class="text-gray-500">تاريخ الاستحقاق:</span>
+                        <span class="font-bold text-[#111718] dark:text-white">20 مايو 2024</span>
+                    </div>
+                    <div class="flex justify-between gap-8 mt-2">
+                        <span class="text-gray-500">الحالة:</span>
+                        <span
+                            class="text-green-600 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded text-xs">مدفوع</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table class="w-full text-right mb-12">
+                <thead>
+                    <tr class="border-b-2 border-primary/10">
+                        <th class="py-4 font-bold text-[#111718] dark:text-white">وصف الخدمة</th>
+                        <th class="py-4 font-bold text-[#111718] dark:text-white text-center">الكمية</th>
+                        <th class="py-4 font-bold text-[#111718] dark:text-white text-center">السعر</th>
+                        <th class="py-4 font-bold text-[#111718] dark:text-white text-left">المجموع</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tr>
+                        <td class="py-4 text-gray-600 dark:text-gray-300">كشف أسنان شامل + أشعة</td>
+                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">1</td>
+                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">150 ر.س</td>
+                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">150 ر.س</td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 text-gray-600 dark:text-gray-300">تنظيف جير وتلميع</td>
+                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">1</td>
+                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">200 ر.س</td>
+                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">200 ر.س</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Summary -->
+            <div class="flex justify-end mb-12">
+                <div class="w-full md:w-1/2 flex flex-col gap-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400 font-medium">المجموع الفرعي</span>
+                        <span class="font-bold text-[#111718] dark:text-white">350 ر.س</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400 font-medium">ضريبة القيمة المضافة (15%)</span>
+                        <span class="font-bold text-[#111718] dark:text-white">52.5 ر.س</span>
+                    </div>
+                    <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-black text-[#111718] dark:text-white">الإجمالي المستحق</span>
+                        <span class="text-2xl font-black text-primary">402.5 ر.س</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-gray-400 text-sm mt-auto pt-10 border-t border-gray-100 dark:border-gray-800">
+                <p>شكراً لتعاملكم معنا. نتمنى لكم دوام الصحة والعافية.</p>
+                <p class="mt-1">رقم السجل الضريبي: 300012345678903</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
