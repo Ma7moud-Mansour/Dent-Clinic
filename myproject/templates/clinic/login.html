@@ -1,0 +1,107 @@
+{% extends 'clinic/base.html' %}
+{% load static %}
+
+{% block title %}تسجيل الدخول - نظام إدارة عيادة الأسنان{% endblock %}
+
+{% block head_extra %}
+<style>
+    .medical-pattern {
+        background-color: #f6f8f8;
+        background-image: radial-gradient(#13daec 0.5px, transparent 0.5px);
+        background-size: 24px 24px;
+    }
+
+    .dark .medical-pattern {
+        background-color: #102022;
+        background-image: radial-gradient(#13daec 0.2px, transparent 0.2px);
+    }
+</style>
+{% endblock %}
+
+{% block body_class %}bg-background-light dark:bg-background-dark medical-pattern min-h-screen flex items-center
+justify-center p-4{% endblock %}
+
+{% block content %}
+<div
+    class="w-full max-w-[480px] bg-white dark:bg-[#1a2e30] rounded-xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <!-- Header Image / Icon Section -->
+    <div class="pt-10 pb-6 flex flex-col items-center">
+        <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-primary text-5xl">dentistry</span>
+        </div>
+        <!-- Headline Text -->
+        <h1 class="text-[#111718] dark:text-white tracking-tight text-3xl font-bold leading-tight px-4 text-center">
+            نظام إدارة عيادة الأسنان
+        </h1>
+        <!-- Title Text -->
+        <h2 class="text-[#618689] dark:text-gray-400 text-lg font-medium leading-tight px-4 text-center pt-2">
+            مرحباً بك، يرجى تسجيل الدخول للمتابعة
+        </h2>
+    </div>
+    <!-- Login Form -->
+    <div class="px-8 pb-10">
+        <form action="{% url 'dashboard' %}" method="get" class="space-y-4">
+            <!-- Username Field -->
+            <div class="flex flex-col gap-2">
+                <label class="flex flex-col w-full">
+                    <p class="text-[#111718] dark:text-gray-200 text-base font-medium pb-2">اسم المستخدم</p>
+                    <div class="relative">
+                        <input
+                            class="form-input flex w-full rounded-lg text-[#111718] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe5e6] dark:border-gray-700 bg-white dark:bg-[#102022] h-14 placeholder:text-[#618689] p-[15px] pr-12 text-base font-normal"
+                            dir="rtl" placeholder="أدخل اسم المستخدم" type="text" />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person</span>
+                    </div>
+                </label>
+            </div>
+            <!-- Password Field -->
+            <div class="flex flex-col gap-2">
+                <label class="flex flex-col w-full">
+                    <p class="text-[#111718] dark:text-gray-200 text-base font-medium pb-2">كلمة المرور</p>
+                    <div class="flex w-full items-stretch rounded-lg relative">
+                        <input
+                            class="form-input flex w-full rounded-lg text-[#111718] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe5e6] dark:border-gray-700 bg-white dark:bg-[#102022] h-14 placeholder:text-[#618689] p-[15px] pr-12 text-base font-normal"
+                            dir="rtl" placeholder="أدخل كلمة المرور" type="password" />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">lock</span>
+                        <div
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-[#618689] cursor-pointer hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex items-center justify-between pt-2">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                    <input class="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4" type="checkbox" />
+                    <span class="text-sm text-[#618689] dark:text-gray-400 group-hover:text-primary">تذكرني</span>
+                </label>
+                <a class="text-sm text-primary font-medium hover:underline" href="#">هل نسيت كلمة المرور؟</a>
+            </div>
+            <!-- Submit Button -->
+            <div class="pt-6">
+                <button
+                    class="w-full bg-primary hover:bg-[#11c5d4] text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    type="submit">
+                    <span>تسجيل الدخول</span>
+                    <span class="material-symbols-outlined">login</span>
+                </button>
+            </div>
+        </form>
+        <!-- Help Section -->
+        <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-[#618689] dark:text-gray-400 text-sm">
+                لا تملك حساباً؟
+                <a class="text-primary font-semibold hover:underline" href="#">اتصل بالمسؤول</a>
+            </p>
+        </div>
+    </div>
+</div>
+<!-- Footer Copyright -->
+<div class="fixed bottom-6 text-center w-full">
+    <p class="text-[#618689] dark:text-gray-500 text-xs">
+        جميع الحقوق محفوظة © ٢٠٢٤ نظام إدارة عيادة الأسنان المتطور
+    </p>
+</div>
+{% endblock %}
