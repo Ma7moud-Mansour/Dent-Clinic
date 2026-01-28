@@ -1,0 +1,100 @@
+{% extends 'clinic/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation (Right side for RTL) -->
+    <aside
+        class="w-64 bg-white dark:bg-[#1a2b2d] border-l border-[#dbe5e6] dark:border-[#2a3b3d] hidden lg:flex flex-col">
+        <div class="p-6 flex flex-col h-full">
+            <!-- Clinic Logo -->
+            <div class="flex items-center gap-3 mb-8">
+                <div class="size-10 rounded-full bg-primary flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">dentistry</span>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-[#111718] dark:text-white text-base font-bold leading-tight">عيادة الأسنان</h1>
+                    <p class="text-[#618689] dark:text-primary/70 text-xs font-normal">نظام الإدارة الطبية</p>
+                </div>
+            </div>
+            <!-- Nav Links -->
+            <nav class="flex flex-col gap-2 flex-grow">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'dashboard' %}">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="text-sm font-medium">الرئيسية</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'patients' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'patients_list' %}">
+                    <span class="material-symbols-outlined">group</span>
+                    <span class="text-sm font-medium">المرضى</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg {% if 'visits' in request.path %}bg-primary/10 text-primary border-r-4 border-primary{% else %}hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300{% endif %}"
+                    href="{% url 'visits' %}">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span class="text-sm font-medium">المواعيد</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
+                    href="#">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span class="text-sm font-medium">الفواتير</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
+                    href="#">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="text-sm font-medium">التقارير</span>
+                </a>
+            </nav>
+            <!-- Bottom Sidebar -->
+            <div class="mt-auto pt-6 border-t border-[#dbe5e6] dark:border-[#2a3b3d]">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-primary/5 transition-colors text-[#111718] dark:text-gray-300"
+                    href="#">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="text-sm font-medium">الإعدادات</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Top Navbar -->
+        <header
+            class="h-16 bg-white dark:bg-[#1a2b2d] border-b border-[#dbe5e6] dark:border-[#2a3b3d] flex items-center justify-between px-8 sticky top-0 z-10">
+            <div class="flex items-center gap-6 flex-1">
+                <h2 class="text-[#111718] dark:text-white text-lg font-bold">
+                    {% block header_title %}لوحة التحكم{% endblock %}
+                </h2>
+                <div class="relative w-full max-w-md hidden md:block">
+                    <span
+                        class="material-symbols-outlined absolute left-auto right-3 top-1/2 -translate-y-1/2 text-[#618689]">search</span>
+                    <input
+                        class="w-full bg-[#f0f4f4] dark:bg-background-dark/50 border-none rounded-lg pr-10 pl-4 py-2 text-sm focus:ring-2 focus:ring-primary transition-all"
+                        placeholder="البحث عن مرضى أو مواعيد..." type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="p-2 rounded-lg bg-[#f0f4f4] dark:bg-background-dark/50 text-[#111718] dark:text-white relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span
+                        class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1a2b2d]"></span>
+                </button>
+                <div class="h-8 w-[1px] bg-[#dbe5e6] dark:bg-[#2a3b3d] mx-2"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-left hidden sm:block">
+                        <p class="text-sm font-bold text-[#111718] dark:text-white leading-tight">د. أحمد خالد</p>
+                        <p class="text-xs text-[#618689] text-left">أخصائي تقويم</p>
+                    </div>
+                    <div class="size-10 rounded-full bg-cover bg-center border-2 border-primary"
+                        data-alt="صورة الطبيب الشخصية"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBv0N2UolZk3-Yiet8zwUDsHB2acCffh1DBz28BljUOImWc79deNrETfaiiEoridnXzYn9SHkNBPLIWPHZBnjPVOl0Sm4cU9hbPHYKSB817NgT5oM17g2nvHhDLlQxR4RsOgPBeTdr7ucbRcJb4Zogmc6OZaU6U3KX3vjKnu3xRDtNEBFRCo5TrcttIHaObSYxnncGaa8yR31WhaxNYwsr8gh8j3CRAgdGjrgosGgpbYDWCv8u1Fhp2EkCaDG_0i-Eq9-ue8ZPY55U')">
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Page Content -->
+        {% block page_content %}
+        {% endblock %}
+    </main>
+</div>
+{% endblock %}

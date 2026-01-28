@@ -1,0 +1,123 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}إضافة أو تعديل مريض - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}إضافة أو تعديل مريض{% endblock %}
+
+{% block page_content %}
+<div class="flex justify-center py-10 px-4">
+    <div class="w-full max-w-[960px] flex flex-col gap-6">
+        <!-- Page Heading -->
+        <div class="flex flex-col gap-2 px-4 md:px-0">
+            <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined">person_add</span>
+                <span class="text-sm font-bold uppercase tracking-wider">سجل جديد</span>
+            </div>
+            <h1
+                class="text-[#111718] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                إضافة أو تعديل مريض</h1>
+            <p class="text-[#618689] text-base font-normal leading-normal">أدخل تفاصيل المريض الطبية والشخصية بدقة لضمان
+                جودة الرعاية</p>
+        </div>
+        <!-- Form Card -->
+        <div
+            class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#dbe5e6] dark:border-[#2a3f41] overflow-hidden">
+            <div class="p-6 md:p-8 space-y-8">
+                <!-- Section: Personal Info -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">badge</span>
+                        <h3 class="text-lg font-bold">المعلومات الأساسية</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Full Name -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الاسم
+                                الكامل</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    placeholder="أدخل اسم المريض الرباعي" type="text" />
+                            </div>
+                        </div>
+                        <!-- Mobile Number -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">رقم
+                                الموبايل</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">phone_iphone</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white text-right focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    dir="ltr" placeholder="05xxxxxxxx" type="tel" />
+                            </div>
+                        </div>
+                        <!-- Age -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">السن</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">calendar_today</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    placeholder="مثال: 25" type="number" />
+                            </div>
+                        </div>
+                        <!-- Gender (Optional Addition for High-Fidelity) -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الجنس</label>
+                            <div class="flex gap-4 h-14">
+                                <button
+                                    class="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-primary bg-primary/10 text-primary font-bold">
+                                    <span class="material-symbols-outlined">male</span> ذكر
+                                </button>
+                                <button
+                                    class="flex-1 flex items-center justify-center gap-2 rounded-lg border border-[#dbe5e6] dark:border-[#2a3f41] hover:bg-gray-50 dark:hover:bg-[#102022] transition-colors">
+                                    <span class="material-symbols-outlined">female</span> أنثى
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Section: Medical Info -->
+                <div class="space-y-6 pt-4">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">clinical_notes</span>
+                        <h3 class="text-lg font-bold">التاريخ الطبي</h3>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">ملاحظات طبية</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute right-4 top-4 text-[#618689]">description</span>
+                            <textarea
+                                class="form-input w-full pr-12 pl-4 pt-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary min-h-40 placeholder:text-[#618689]"
+                                placeholder="أدخل التاريخ الطبي، الحساسية، أو أي ملاحظات هامة تخص حالة المريض..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Action Buttons -->
+            <div
+                class="bg-background-light/50 dark:bg-black/20 p-6 md:px-8 flex flex-col sm:flex-row gap-4 justify-end">
+                <button
+                    class="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-[#2a3f41] transition-all">
+                    <span>إلغاء</span>
+                </button>
+                <button
+                    class="flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>حفظ البيانات</span>
+                </button>
+            </div>
+        </div>
+        <!-- Footer Hint -->
+        <div class="flex items-center justify-center gap-2 text-[#618689] text-sm mt-4">
+            <span class="material-symbols-outlined text-sm">lock</span>
+            <p>جميع بيانات المرضى مشفرة ومؤمنة طبقاً للمعايير الطبية</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

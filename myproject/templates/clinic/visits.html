@@ -1,0 +1,163 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}سجل الزيارات - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}سجل الزيارات{% endblock %}
+
+{% block page_content %}
+<div class="flex flex-col gap-6 min-w-0 p-4 lg:p-10">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'patients_list' %}"
+                class="size-10 flex items-center justify-center rounded-lg bg-white dark:bg-[#1a2e30] shadow-sm border border-gray-100 dark:border-gray-800 hover:bg-gray-50 transition-colors">
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <div>
+                <div class="flex items-center gap-2 text-gray-400 text-sm mb-1">
+                    <span>المرضى</span>
+                    <span class="material-symbols-outlined text-xs">chevron_left</span>
+                    <span>أحمد محمود خالد</span>
+                </div>
+                <h2 class="text-3xl font-black tracking-tight">سجل زيارات المريض</h2>
+            </div>
+        </div>
+        <button
+            class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+            <span class="material-symbols-outlined">add</span>
+            <span>إضافة زيارة جديدة</span>
+        </button>
+    </div>
+    <!-- Patient Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+            <div
+                class="size-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center text-blue-500">
+                <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي التكلفة</p>
+                <p class="text-xl font-bold">٥,٨٥٠ ر.س</p>
+            </div>
+        </div>
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+            <div
+                class="size-12 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-center text-green-500">
+                <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي المدفوع</p>
+                <p class="text-xl font-bold">٤,٥٠٠ ر.س</p>
+            </div>
+        </div>
+        <div
+            class="bg-white dark:bg-[#1a2e30] p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+            <div class="size-12 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center text-red-500">
+                <span class="material-symbols-outlined text-3xl">priority_high</span>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي المتبقي</p>
+                <p class="text-xl font-bold text-red-500">١,٣٥٠ ر.س</p>
+            </div>
+        </div>
+    </div>
+    <!-- Visits Table Container -->
+    <div
+        class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <h3 class="font-bold text-lg">التاريخ العلاجي</h3>
+            <div class="flex gap-2">
+                <button class="p-2 text-gray-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">filter_list</span>
+                </button>
+                <button class="p-2 text-gray-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">download</span>
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse">
+                <thead>
+                    <tr class="bg-background-light dark:bg-background-dark/50 text-gray-500 dark:text-gray-400 text-sm">
+                        <th class="px-6 py-4 font-bold">تاريخ الزيارة</th>
+                        <th class="px-6 py-4 font-bold">وصف الإجراء الطبي</th>
+                        <th class="px-6 py-4 font-bold">التكلفة (ر.س)</th>
+                        <th class="px-6 py-4 font-bold">المدفوع (ر.س)</th>
+                        <th class="px-6 py-4 font-bold text-red-500">المتبقي (ر.س)</th>
+                        <th class="px-6 py-4 font-bold text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <!-- Row 1 -->
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-5">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-700 dark:text-gray-200">٢٤ مارس ٢٠٢٤</span>
+                                <span class="text-xs text-gray-400">١٠:٣٠ صباحاً</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="size-2 bg-primary rounded-full"></div>
+                                <span class="font-medium">تنظيف لثة وتبييض ليزر</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-300">١,٢٠٠</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-300">٨٠٠</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full text-sm font-black">
+                                ٤٠٠
+                            </span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex justify-center gap-2">
+                                <button
+                                    class="size-8 rounded-lg flex items-center justify-center hover:bg-primary/10 text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-lg">edit</span>
+                                </button>
+                                <button
+                                    class="size-8 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">print</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div
+            class="p-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-gray-400">عرض ٤ من أصل ١٢ زيارة سابقة</p>
+            <div class="flex items-center gap-2">
+                <button
+                    class="px-3 py-1 border border-gray-200 dark:border-gray-700 rounded text-sm hover:bg-gray-50 transition-colors">التالي</button>
+                <div class="flex gap-1">
+                    <button class="size-8 bg-primary text-white rounded font-bold text-sm">١</button>
+                    <button
+                        class="size-8 border border-gray-200 dark:border-gray-700 rounded text-sm hover:bg-gray-50 transition-colors">٢</button>
+                    <button
+                        class="size-8 border border-gray-200 dark:border-gray-700 rounded text-sm hover:bg-gray-50 transition-colors">٣</button>
+                </div>
+                <button
+                    class="px-3 py-1 border border-gray-200 dark:border-gray-700 rounded text-sm hover:bg-gray-50 transition-colors">السابق</button>
+            </div>
+        </div>
+    </div>
+    <!-- Medical Notes Footer -->
+    <div class="bg-primary/5 rounded-xl border border-primary/10 p-6 flex gap-4">
+        <div class="size-10 bg-primary/20 rounded-full flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined">info</span>
+        </div>
+        <div>
+            <h4 class="font-bold text-primary mb-1">ملاحظة طبية هامة</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">المريض يعاني من حساسية تجاه البنسلين.
+                يرجى مراجعة الملف الطبي الشامل قبل جدولة إجراءات جراحية إضافية. تم دفع جزء من المبلغ المتبقي عبر التحويل
+                البنكي وفي انتظار التأكيد.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
