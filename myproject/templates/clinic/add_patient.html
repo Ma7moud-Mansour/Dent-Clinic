@@ -20,99 +20,127 @@
                 جودة الرعاية</p>
         </div>
         <!-- Form Card -->
-        <div
-            class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#dbe5e6] dark:border-[#2a3f41] overflow-hidden">
-            <div class="p-6 md:p-8 space-y-8">
-                <!-- Section: Personal Info -->
-                <div class="space-y-6">
-                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
-                        <span class="material-symbols-outlined text-primary">badge</span>
-                        <h3 class="text-lg font-bold">المعلومات الأساسية</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Full Name -->
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الاسم
-                                الكامل</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person</span>
-                                <input
-                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
-                                    placeholder="أدخل اسم المريض الرباعي" type="text" />
-                            </div>
-                        </div>
-                        <!-- Mobile Number -->
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">رقم
-                                الموبايل</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">phone_iphone</span>
-                                <input
-                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white text-right focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
-                                    dir="ltr" placeholder="05xxxxxxxx" type="tel" />
-                            </div>
-                        </div>
-                        <!-- Age -->
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">السن</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">calendar_today</span>
-                                <input
-                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
-                                    placeholder="مثال: 25" type="number" />
-                            </div>
-                        </div>
-                        <!-- Gender (Optional Addition for High-Fidelity) -->
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الجنس</label>
-                            <div class="flex gap-4 h-14">
-                                <button
-                                    class="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-primary bg-primary/10 text-primary font-bold">
-                                    <span class="material-symbols-outlined">male</span> ذكر
-                                </button>
-                                <button
-                                    class="flex-1 flex items-center justify-center gap-2 rounded-lg border border-[#dbe5e6] dark:border-[#2a3f41] hover:bg-gray-50 dark:hover:bg-[#102022] transition-colors">
-                                    <span class="material-symbols-outlined">female</span> أنثى
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Section: Medical Info -->
-                <div class="space-y-6 pt-4">
-                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
-                        <span class="material-symbols-outlined text-primary">clinical_notes</span>
-                        <h3 class="text-lg font-bold">التاريخ الطبي</h3>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">ملاحظات طبية</label>
-                        <div class="relative">
-                            <span
-                                class="material-symbols-outlined absolute right-4 top-4 text-[#618689]">description</span>
-                            <textarea
-                                class="form-input w-full pr-12 pl-4 pt-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary min-h-40 placeholder:text-[#618689]"
-                                placeholder="أدخل التاريخ الطبي، الحساسية، أو أي ملاحظات هامة تخص حالة المريض..."></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Action Buttons -->
+        <form method="POST" action="">
+            {% csrf_token %}
             <div
-                class="bg-background-light/50 dark:bg-black/20 p-6 md:px-8 flex flex-col sm:flex-row gap-4 justify-end">
-                <button
-                    class="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-[#2a3f41] transition-all">
-                    <span>إلغاء</span>
-                </button>
-                <button
-                    class="flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
-                    <span class="material-symbols-outlined">save</span>
-                    <span>حفظ البيانات</span>
-                </button>
+                class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#dbe5e6] dark:border-[#2a3f41] overflow-hidden">
+                <div class="p-6 md:p-8 space-y-8">
+                    <!-- Section: Personal Info -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                            <span class="material-symbols-outlined text-primary">badge</span>
+                            <h3 class="text-lg font-bold">المعلومات الأساسية</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Full Name -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الاسم
+                                    الكامل</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person</span>
+                                    <input name="full_name" value="{{ patient.full_name|default:'' }}" required
+                                        class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                        placeholder="أدخل اسم المريض الرباعي" type="text" />
+                                </div>
+                            </div>
+                            <!-- Mobile Number -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">رقم
+                                    الموبايل</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">phone_iphone</span>
+                                    <input name="phone" value="{{ patient.phone|default:'' }}" required
+                                        class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white text-right focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                        dir="ltr" placeholder="05xxxxxxxx" type="tel" />
+                                </div>
+                            </div>
+                            <!-- Age -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">السن</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">calendar_today</span>
+                                    <input name="age" value="{{ patient.age|default:'' }}" required
+                                        class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                        placeholder="مثال: 25" type="number" />
+                                </div>
+                            </div>
+                            <!-- Gender -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الجنس</label>
+                                <div class="flex gap-4 h-14">
+                                    <input type="hidden" name="gender" id="genderInput"
+                                        value="{{ patient.gender|default:'male' }}">
+                                    <button type="button" onclick="selectGender('male')" id="btn-male"
+                                        class="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 {% if patient.gender == 'male' or not patient %}border-primary bg-primary/10 text-primary{% else %}border-[#dbe5e6] dark:border-[#2a3f41]{% endif %} font-bold transition-all">
+                                        <span class="material-symbols-outlined">male</span> ذكر
+                                    </button>
+                                    <button type="button" onclick="selectGender('female')" id="btn-female"
+                                        class="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 {% if patient.gender == 'female' %}border-primary bg-primary/10 text-primary{% else %}border-[#dbe5e6] dark:border-[#2a3f41]{% endif %} font-bold transition-all">
+                                        <span class="material-symbols-outlined">female</span> أنثى
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Section: Medical Info -->
+                    <div class="space-y-6 pt-4">
+                        <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                            <span class="material-symbols-outlined text-primary">clinical_notes</span>
+                            <h3 class="text-lg font-bold">التاريخ الطبي</h3>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">ملاحظات
+                                طبية</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-4 text-[#618689]">description</span>
+                                <textarea name="notes"
+                                    class="form-input w-full pr-12 pl-4 pt-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary min-h-40 placeholder:text-[#618689]"
+                                    placeholder="أدخل التاريخ الطبي، الحساسية، أو أي ملاحظات هامة تخص حالة المريض...">{{ patient.notes|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Action Buttons -->
+                <div
+                    class="bg-background-light/50 dark:bg-black/20 p-6 md:px-8 flex flex-col sm:flex-row gap-4 justify-end">
+                    <a href="{% url 'patients_list' %}"
+                        class="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-[#2a3f41] transition-all">
+                        <span>إلغاء</span>
+                    </a>
+                    <button type="submit"
+                        class="flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined">save</span>
+                        <span>حفظ البيانات</span>
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
+
+        <script>
+            function selectGender(gender) {
+                document.getElementById('genderInput').value = gender;
+                const btnMale = document.getElementById('btn-male');
+                const btnFemale = document.getElementById('btn-female');
+
+                if (gender === 'male') {
+                    btnMale.classList.add('border-primary', 'bg-primary/10', 'text-primary');
+                    btnMale.classList.remove('border-[#dbe5e6]', 'dark:border-[#2a3f41]');
+
+                    btnFemale.classList.remove('border-primary', 'bg-primary/10', 'text-primary');
+                    btnFemale.classList.add('border-[#dbe5e6]', 'dark:border-[#2a3f41]');
+                } else {
+                    btnFemale.classList.add('border-primary', 'bg-primary/10', 'text-primary');
+                    btnFemale.classList.remove('border-[#dbe5e6]', 'dark:border-[#2a3f41]');
+
+                    btnMale.classList.remove('border-primary', 'bg-primary/10', 'text-primary');
+                    btnMale.classList.add('border-[#dbe5e6]', 'dark:border-[#2a3f41]');
+                }
+            }
+        </script>
         <!-- Footer Hint -->
         <div class="flex items-center justify-center gap-2 text-[#618689] text-sm mt-4">
             <span class="material-symbols-outlined text-sm">lock</span>
