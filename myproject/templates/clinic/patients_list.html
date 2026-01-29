@@ -21,12 +21,12 @@
     <!-- Search Bar -->
     <div class="mb-6">
         <div class="bg-white dark:bg-[#1a2e30] p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-            <label class="flex items-center w-full h-12 px-4 gap-3">
+            <form method="GET" action="{% url 'patients_list' %}" class="flex items-center w-full h-12 px-4 gap-3">
                 <span class="material-symbols-outlined text-primary" style="font-size: 24px;">search</span>
-                <input
+                <input name="q" value="{{ query }}"
                     class="form-input flex-1 border-none bg-transparent focus:ring-0 text-[#111718] dark:text-white placeholder:text-gray-400 text-base font-normal leading-normal"
-                    placeholder="بحث بالاسم أو رقم الهاتف أو الرقم القومي..." value="" />
-            </label>
+                    placeholder="بحث بالاسم أو رقم الهاتف..." />
+            </form>
         </div>
     </div>
     <!-- Data Table -->
@@ -45,162 +45,89 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    {% for patient in page_obj %}
                     <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
                         <td class="px-6 py-5">
-                            <a href="{% url 'patient_profile' 1 %}" class="flex items-center gap-3">
+                            <a href="{% url 'patient_profile' patient.id %}" class="flex items-center gap-3">
                                 <div
                                     class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    أم</div>
-                                <span class="text-[#111718] dark:text-white font-medium">أحمد محمد علي</span>
+                                    {{ patient.full_name|slice:":2" }}</div>
+                                <span class="text-[#111718] dark:text-white font-medium">{{ patient.full_name }}</span>
                             </a>
                         </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono">0501234567</td>
-                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">34</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">20 أكتوبر 2023</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono" dir="ltr">{{ patient.phone }}
+                        </td>
+                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">{{ patient.age }}</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">
+                            {{ patient.visits.first.visit_date|default:"-" }}
+                        </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'add_patient' %}"
+                                <a href="{% url 'edit_patient' patient.id %}"
                                     class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                                     title="تعديل">
                                     <span class="material-symbols-outlined">edit</span>
                                 </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                    title="حذف">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
+                                <form action="{% url 'delete_patient' patient.id %}" method="POST"
+                                    onsubmit="return confirm('هل أنت متأكد من حذف هذا المريض؟');"
+                                    style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                        title="حذف">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-10 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-500 font-bold">
-                                    سأ</div>
-                                <span class="text-[#111718] dark:text-white font-medium">سارة أحمد إبراهيم</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono">0559876543</td>
-                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">28</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">15 نوفمبر 2023</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'add_patient' %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                            لا يوجد مرضى مطابقين للبحث.
                         </td>
                     </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 font-bold">
-                                    مع</div>
-                                <span class="text-[#111718] dark:text-white font-medium">محمود علي حسن</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono">0561112223</td>
-                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">45</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">02 ديسمبر 2023</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'add_patient' %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-500 font-bold">
-                                    لإ</div>
-                                <span class="text-[#111718] dark:text-white font-medium">ليلى إبراهيم منصور</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono">0544455566</td>
-                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">31</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">28 نوفمبر 2023</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'add_patient' %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 font-bold">
-                                    يع</div>
-                                <span class="text-[#111718] dark:text-white font-medium">يوسف عمر خالد</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 font-mono">0527778889</td>
-                        <td class="px-6 py-5 text-center text-gray-600 dark:text-gray-400">52</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">05 ديسمبر 2023</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'add_patient' %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
     <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
     <div class="flex items-center justify-between p-6 bg-transparent">
         <div class="text-sm text-gray-500 dark:text-gray-400">
-            عرض <span class="font-bold text-[#111718] dark:text-white">1</span> إلى <span
-                class="font-bold text-[#111718] dark:text-white">5</span> من <span
-                class="font-bold text-[#111718] dark:text-white">128</span> مريض
+            عرض <span class="font-bold text-[#111718] dark:text-white">{{ page_obj.start_index }}</span> إلى <span
+                class="font-bold text-[#111718] dark:text-white">{{ page_obj.end_index }}</span> من <span
+                class="font-bold text-[#111718] dark:text-white">{{ count }}</span> مريض
         </div>
         <div class="flex items-center gap-1">
-            <button
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
                 class="flex size-10 items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                 <span class="material-symbols-outlined">chevron_right</span>
-            </button>
+            </a>
+            {% endif %}
+
+            {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
             <button
-                class="text-sm font-bold flex size-10 items-center justify-center text-white rounded-lg bg-primary shadow-sm">1</button>
-            <button
-                class="text-sm font-normal flex size-10 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">2</button>
-            <button
-                class="text-sm font-normal flex size-10 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">3</button>
-            <button
-                class="text-sm font-normal flex size-10 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">4</button>
-            <button
+                class="text-sm font-bold flex size-10 items-center justify-center text-white rounded-lg bg-primary shadow-sm">{{
+                i }}</button>
+            {% else %}
+            <a href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}"
+                class="text-sm font-normal flex size-10 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">{{
+                i }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
                 class="flex size-10 items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                 <span class="material-symbols-outlined">chevron_left</span>
-            </button>
+            </a>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
