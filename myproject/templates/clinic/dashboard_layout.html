@@ -87,7 +87,7 @@
                 <div class="h-8 w-[1px] bg-[#dbe5e6] dark:bg-[#2a3b3d] mx-2"></div>
                 <div class="flex items-center gap-3">
                     <div class="text-left hidden sm:block">
-                        <p class="text-sm font-bold text-[#111718] dark:text-white leading-tight">د. أحمد خالد</p>
+                        <p class="text-sm font-bold text-[#111718] dark:text-white leading-tight">{{ request.user.get_full_name|default:request.user.username }}</p>
                         <p class="text-xs text-[#618689] text-left">أخصائي تقويم</p>
                     </div>
                     <div class="size-10 rounded-full bg-cover bg-center border-2 border-primary"
