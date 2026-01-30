@@ -95,6 +95,7 @@
                 </ul>
             </div>
         </aside>
+
         <!-- Main Content Area -->
         <div class="lg:col-span-8 flex flex-col gap-6">
             <!-- Tabs Navigation -->
@@ -136,53 +137,105 @@
                                 <div
                                     class="p-4 rounded-xl bg-background-light dark:bg-[#2d4548]/20 border border-transparent hover:border-primary/20 transition-all">
                                     <p class="text-xs text-[#618689] mb-1 font-bold">الملاحظات الطبية</p>
-                                    <p class="text-sm">{{ patient.notes|default:"لا توجد ملاحظات طبية مسجلة."|linebreaks
-                                        }}</p>
+                                    <p class="text-sm">
+                                        {{ patient.notes|default_if_none:"لا توجد ملاحظات طبية مسجلة."|linebreaks }}
+                                    </p>
                                 </div>
                             </div>
                         </section>
+
+                        <!-- X-Ray Section (Appended, not replacing) -->
                         <section>
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base font-bold flex items-center gap-2">
                                     <span class="w-1.5 h-6 bg-primary rounded-full"></span>
-                                    حالة الأسنان الحالية
+                                    آخر أشعة سينية
                                 </h3>
-                                <span
-                                    class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">آخر
-                                    تحديث: 12 أكتوبر 2023</span>
+                                <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                                    {% if latest_xray %}
+                                    {{ latest_xray.created_at|date:"d F Y" }}
+                                    {% else %}
+                                    --
+                                    {% endif %}
+                                </span>
                             </div>
                             <div
                                 class="bg-background-light dark:bg-[#2d4548]/20 rounded-xl p-6 border border-[#f0f4f4] dark:border-[#2d4548]">
                                 <div class="flex flex-col md:flex-row gap-8 items-center justify-around">
-                                    <!-- Placeholder for a Dental Chart Graphic -->
+                                    <!-- X-Ray Image Display -->
                                     <div
                                         class="relative w-full max-w-sm aspect-[2/1] bg-white dark:bg-[#1a2e30] rounded-lg shadow-inner flex items-center justify-center overflow-hidden border border-[#dbe5e6] dark:border-[#2d4548]">
+                                        {% if latest_xray and latest_xray.image %}
+                                        <img src="{{ latest_xray.image.url }}" alt="Latest X-Ray"
+                                            class="w-full h-full object-cover">
+                                        {% else %}
                                         <div class="absolute inset-0 opacity-10 flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-[120px]">dentistry</span>
+                                            <span class="material-symbols-outlined text-[120px]">radiology</span>
                                         </div>
                                         <div class="text-center z-10 px-4">
-                                            <p class="text-[#618689] text-xs font-medium">مخطط الأسنان التفاعلي</p>
-                                            <p class="text-[10px] text-[#618689]/70 mt-1">يظهر الأسنان التي تحتاج لعلاج
-                                                باللون البرتقالي</p>
+                                            <p class="text-[#618689] text-xs font-medium">لا توجد أشعة مسجلة</p>
                                         </div>
+                                        {% endif %}
                                     </div>
                                     <div class="space-y-3 w-full md:w-auto">
-                                        <div class="flex items-center gap-3">
-                                            <span class="size-3 rounded-full bg-orange-400"></span>
-                                            <span class="text-xs font-medium">تسوس في الطاحن العلوي الأيمن</span>
+                                        {% if latest_xray %}
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs font-bold text-[#618689]">ملاحظات:</span>
+                                            {% if latest_xray %}
+                                                <p class="text-sm">
+                                                    {{ latest_xray.notes|default:"لا توجد ملاحظات."|linebreaks }}
+                                                </p>
+                                                {% else %}
+                                                <p class="text-sm text-gray-400">
+                                                    لا توجد أشعة مسجلة
+                                                </p>
+                                            {% endif %}
+
                                         </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="size-3 rounded-full bg-blue-400"></span>
-                                            <span class="text-xs font-medium">تنظيف جير مقرر</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="size-3 rounded-full bg-green-400"></span>
-                                            <span class="text-xs font-medium">حشو سابق ناجح</span>
+                                        {% endif %}
+
+                                        <!-- Upload X-Ray Button/Form -->
+                                        <div class="mt-4">
+                                            <a href="{% url 'add_xray' patient.id %}"
+                                                onclick="document.getElementById('upload-xray-modal').classList.remove('hidden'); return false;"
+                                                class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:brightness-105 transition-all">
+                                                <span class="material-symbols-outlined text-sm">upload_file</span>
+                                                رفع أشعة جديدة
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </section>
+
+                        <!-- Upload Modal (Simulated) -->
+                        <div id="upload-xray-modal"
+                            class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white dark:bg-[#1a2e30] rounded-xl p-6 w-full max-w-md">
+                                <h3 class="text-lg font-bold mb-4">رفع أشعة سينية جديدة</h3>
+                                <form action="{% url 'add_xray' patient.id %}" method="POST"
+                                    enctype="multipart/form-data" class="space-y-4">
+                                    {% csrf_token %}
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">صورة الأشعة</label>
+                                        <input type="file" name="image" accept="image/*" required
+                                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">ملاحظات</label>
+                                        <textarea name="notes" rows="3"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-700 bg-transparent text-sm p-2"></textarea>
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button type="button"
+                                            onclick="document.getElementById('upload-xray-modal').classList.add('hidden')"
+                                            class="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">إلغاء</button>
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg">حفظ</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <section>
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base font-bold flex items-center gap-2">
@@ -215,7 +268,8 @@
                                         </tr>
                                         {% empty %}
                                         <tr>
-                                            <td colspan="4" class="p-4 text-center text-gray-500">لا توجد زيارات سابقة.
+                                            <td colspan="4" class="p-4 text-center text-gray-500">لا توجد زيارات
+                                                سابقة.
                                             </td>
                                         </tr>
                                         {% endfor %}

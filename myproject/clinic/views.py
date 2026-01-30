@@ -94,16 +94,42 @@ def delete_patient(request, id):
         messages.success(request, 'Patient deleted successfully.')
     return redirect('patients_list')
 
+def add_xray(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        image = request.FILES.get('image')
+        notes = request.POST.get('notes')
+        
+        if image:
+            try:
+                # Use string reference to model name to avoid circular import if needed, 
+                # but models are in same app so direct import works.
+                from .models import DentalXRay 
+                DentalXRay.objects.create(
+                    patient=patient,
+                    image=image,
+                    notes=notes
+                )
+                messages.success(request, 'X-Ray uploaded successfully.')
+            except Exception as e:
+                messages.error(request, f'Error uploading X-Ray: {e}')
+        else:
+            messages.error(request, 'Please select an image.')
+            
+    return redirect('patient_profile', id=patient_id)
+
 def patient_profile(request, id):
     patient = get_object_or_404(Patient, id=id)
     # Get last visit and appointments if models are related correctly
     visits = patient.visits.all().order_by('-visit_date')
     appointments = patient.appointments.filter(status='scheduled').order_by('date', 'time')
+    latest_xray = patient.xrays.last()
     
     return render(request, 'clinic/patient_profile.html', {
         'patient': patient,
         'visits': visits,
-        'appointments': appointments
+        'appointments': appointments,
+        'latest_xray': latest_xray
     })
 
 def visits(request):
