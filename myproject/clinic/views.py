@@ -10,7 +10,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
-from .models import Patient
+from .models import Patient, Appointment
+from datetime import date, datetime
 
 def patients_list(request):
     query = request.GET.get('q', '')
@@ -129,9 +130,20 @@ def update_medical_notes(request, patient_id):
 
 def patient_profile(request, id):
     patient = get_object_or_404(Patient, id=id)
-    # Get last visit and appointments if models are related correctly
-    visits = patient.visits.all().order_by('-visit_date')
-    appointments = patient.appointments.filter(status='scheduled').order_by('date', 'time')
+    
+    # "Visits" are now completed appointments
+    visits = Appointment.objects.filter(
+        patient=patient, 
+        status='completed'
+    ).order_by('-date', '-time')
+    
+    # "Appointments" are scheduled and in the future/today
+    appointments = Appointment.objects.filter(
+        patient=patient, 
+        status='scheduled',
+        date__gte=date.today()
+    ).order_by('date', 'time')
+    
     latest_xray = patient.xrays.last()
     
     return render(request, 'clinic/patient_profile.html', {
@@ -144,8 +156,7 @@ def patient_profile(request, id):
 def visits(request):
     return render(request, 'clinic/visits.html')
 
-from datetime import date, datetime
-from .models import Patient, Appointment
+
 
 def appointments_list(request):
     selected_date_str = request.GET.get('date')
