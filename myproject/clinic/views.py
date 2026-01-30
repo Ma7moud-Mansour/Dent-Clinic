@@ -118,6 +118,15 @@ def add_xray(request, patient_id):
             
     return redirect('patient_profile', id=patient_id)
 
+def update_medical_notes(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        notes = request.POST.get('notes')
+        patient.notes = notes
+        patient.save()
+        messages.success(request, 'Medical notes updated successfully.')
+    return redirect('patient_profile', id=patient_id)
+
 def patient_profile(request, id):
     patient = get_object_or_404(Patient, id=id)
     # Get last visit and appointments if models are related correctly
@@ -135,11 +144,85 @@ def patient_profile(request, id):
 def visits(request):
     return render(request, 'clinic/visits.html')
 
+from datetime import date, datetime
+from .models import Patient, Appointment
+
 def appointments_list(request):
-    return render(request, 'clinic/appointments_list.html')
+    selected_date_str = request.GET.get('date')
+    search_query = request.GET.get('q', '')
+    
+    if selected_date_str:
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+    else:
+        selected_date = date.today()
+        
+    appointments = Appointment.objects.filter(date=selected_date).order_by('time')
+    
+    if search_query:
+        appointments = appointments.filter(patient__full_name__icontains=search_query)
+        
+    return render(request, 'clinic/appointments_list.html', {
+        'appointments': appointments,
+        'selected_date': selected_date,
+        'today': date.today(),
+        'search_query': search_query
+    })
 
 def add_appointment(request):
-    return render(request, 'clinic/add_appointment.html')
+    patients = Patient.objects.all()
+    
+    if request.method == 'POST':
+        patient_name_input = request.POST.get('patient_name')
+        date_str = request.POST.get('date')
+        time_str = request.POST.get('time')
+        notes = request.POST.get('notes')
+        
+        # Validations
+        if not patient_name_input or not date_str or not time_str:
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'clinic/add_appointment.html', {'patients': patients})
+            
+        # Parse patient (Assuming input format "Name - #ID" or just "Name")
+        patient = None
+        if " - #" in patient_name_input:
+            try:
+                p_id = patient_name_input.split(" - #")[-1]
+                patient = Patient.objects.get(id=p_id)
+            except:
+                pass
+        
+        if not patient:
+            # Fallback search by exact name
+            patient = Patient.objects.filter(full_name__iexact=patient_name_input).first()
+            
+        if not patient:
+            messages.error(request, 'Patient not found. Please select a valid patient.')
+            return render(request, 'clinic/add_appointment.html', {'patients': patients})
+            
+        try:
+            Appointment.objects.create(
+                patient=patient,
+                date=date_str,
+                time=time_str,
+                notes=notes,
+                status='scheduled'
+            )
+            messages.success(request, 'Appointment scheduled successfully.')
+            return redirect('appointments_list')
+        except Exception as e:
+            messages.error(request, f'Error scheduling appointment: {e}')
+            
+    return render(request, 'clinic/add_appointment.html', {
+        'patients': patients
+    })
+
+def update_appointment_status(request, id, status):
+    appointment = get_object_or_404(Appointment, id=id)
+    if status in ['scheduled', 'completed', 'cancelled']:
+        appointment.status = status
+        appointment.save()
+        messages.success(request, f'Appointment marked as {status}.')
+    return redirect('appointments_list')
 
 def invoices_list(request):
     return render(request, 'clinic/invoices_list.html')

@@ -35,7 +35,7 @@ class Patient(models.Model):
 class Appointment(models.Model):
     STATUS_CHOICES = (
         ('scheduled', 'Scheduled'),
-        ('done', 'Done'),
+        ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     )
 
@@ -51,6 +51,7 @@ class Appointment(models.Model):
         choices=STATUS_CHOICES,
         default='scheduled'
     )
+    notes = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

@@ -60,15 +60,6 @@
                             <p class="text-sm font-bold text-[#111718] dark:text-white">{{ patient.age }} سنة</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 p-3 bg-background-light dark:bg-[#2d4548]/30 rounded-lg">
-                        <div class="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                            <span class="material-symbols-outlined">bloodtype</span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-[#618689] font-bold uppercase tracking-wider">فصيلة الدم</p>
-                            <p class="text-sm font-bold text-[#111718] dark:text-white">O+</p>
-                        </div>
-                    </div>
                 </div>
                 <div class="p-4 bg-background-light/50 dark:bg-[#2d4548]/50 flex gap-3">
                     <a href="{% url 'edit_patient' patient.id %}"
@@ -131,7 +122,8 @@
                                     <span class="w-1.5 h-6 bg-primary rounded-full"></span>
                                     الحالة الصحية العامة
                                 </h3>
-                                <button class="text-primary text-xs font-bold hover:underline">تعديل</button>
+                                <button onclick="document.getElementById('edit-notes-modal').classList.remove('hidden')"
+                                    class="text-primary text-xs font-bold hover:underline">تعديل</button>
                             </div>
                             <div class="grid grid-cols-1 gap-4">
                                 <div
@@ -144,6 +136,30 @@
                             </div>
                         </section>
 
+                        <!-- Edit Medical Notes Modal -->
+                        <div id="edit-notes-modal"
+                            class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white dark:bg-[#1a2e30] rounded-xl p-6 w-full max-w-md">
+                                <h3 class="text-lg font-bold mb-4">تعديل الملاحظات الطبية</h3>
+                                <form action="{% url 'update_medical_notes' patient.id %}" method="POST"
+                                    class="space-y-4">
+                                    {% csrf_token %}
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">الملاحظات</label>
+                                        <textarea name="notes" rows="5"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-700 bg-transparent text-sm p-3 focus:border-primary focus:ring-0">{{ patient.notes|default_if_none:"" }}</textarea>
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button type="button"
+                                            onclick="document.getElementById('edit-notes-modal').classList.add('hidden')"
+                                            class="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">إلغاء</button>
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg">حفظ</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                         <!-- X-Ray Section (Appended, not replacing) -->
                         <section>
                             <div class="flex items-center justify-between mb-4">
@@ -153,7 +169,7 @@
                                 </h3>
                                 <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
                                     {% if latest_xray %}
-                                    {{ latest_xray.created_at|date:"d F Y" }}
+                                    {{ latest_xray.created_at|date:"F d, Y" }}
                                     {% else %}
                                     --
                                     {% endif %}
@@ -182,13 +198,13 @@
                                         <div class="flex flex-col gap-1">
                                             <span class="text-xs font-bold text-[#618689]">ملاحظات:</span>
                                             {% if latest_xray %}
-                                                <p class="text-sm">
-                                                    {{ latest_xray.notes|default:"لا توجد ملاحظات."|linebreaks }}
-                                                </p>
-                                                {% else %}
-                                                <p class="text-sm text-gray-400">
-                                                    لا توجد أشعة مسجلة
-                                                </p>
+                                            <p class="text-sm">
+                                                {{ latest_xray.notes|default:"لا توجد ملاحظات."|linebreaks }}
+                                            </p>
+                                            {% else %}
+                                            <p class="text-sm text-gray-400">
+                                                لا توجد أشعة مسجلة
+                                            </p>
                                             {% endif %}
 
                                         </div>
