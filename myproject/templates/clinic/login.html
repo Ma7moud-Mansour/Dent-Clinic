@@ -40,7 +40,20 @@ justify-center p-4{% endblock %}
     </div>
     <!-- Login Form -->
     <div class="px-8 pb-10">
-        <form action="{% url 'dashboard' %}" method="get" class="space-y-4">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
+                role="alert">
+                <span class="block sm:inline">اسم المستخدم أو كلمة المرور غير صحيحة</span>
+            </div>
+            {% endif %}
+            {% if message %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
+                role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+            {% endif %}
             <!-- Username Field -->
             <div class="flex flex-col gap-2">
                 <label class="flex flex-col w-full">
@@ -48,7 +61,7 @@ justify-center p-4{% endblock %}
                     <div class="relative">
                         <input
                             class="form-input flex w-full rounded-lg text-[#111718] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe5e6] dark:border-gray-700 bg-white dark:bg-[#102022] h-14 placeholder:text-[#618689] p-[15px] pr-12 text-base font-normal"
-                            dir="rtl" placeholder="أدخل اسم المستخدم" type="text" />
+                            dir="rtl" placeholder="أدخل اسم المستخدم" type="text" name="username" required />
                         <span
                             class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">person</span>
                     </div>
@@ -61,7 +74,7 @@ justify-center p-4{% endblock %}
                     <div class="flex w-full items-stretch rounded-lg relative">
                         <input
                             class="form-input flex w-full rounded-lg text-[#111718] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe5e6] dark:border-gray-700 bg-white dark:bg-[#102022] h-14 placeholder:text-[#618689] p-[15px] pr-12 text-base font-normal"
-                            dir="rtl" placeholder="أدخل كلمة المرور" type="password" />
+                            dir="rtl" placeholder="أدخل كلمة المرور" type="password" name="password" required />
                         <span
                             class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">lock</span>
                         <div
@@ -90,12 +103,12 @@ justify-center p-4{% endblock %}
             </div>
         </form>
         <!-- Help Section -->
-        <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+        <!-- <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
             <p class="text-[#618689] dark:text-gray-400 text-sm">
                 لا تملك حساباً؟
                 <a class="text-primary font-semibold hover:underline" href="#">اتصل بالمسؤول</a>
             </p>
-        </div>
+        </div> -->
     </div>
 </div>
 <!-- Footer Copyright -->
