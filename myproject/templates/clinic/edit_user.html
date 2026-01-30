@@ -1,0 +1,87 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% block title %}تعديل مستخدم - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}تعديل مستخدم{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[800px] mx-auto px-4 py-8">
+    <div class="flex items-center gap-2 mb-6 text-sm text-gray-500">
+        <a href="{% url 'settings' %}" class="hover:text-primary">الإعدادات</a>
+        <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <a href="{% url 'users_list' %}" class="hover:text-primary">إدارة المستخدمين</a>
+        <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <span class="text-[#111718] dark:text-white font-medium">تعديل: {{ user_obj.username }}</span>
+    </div>
+
+    <div class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-6">تعديل بيانات المستخدم</h2>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- First Name -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">الاسم الأول</label>
+                    <input type="text" name="first_name" value="{{ user_obj.first_name }}"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+
+                <!-- Last Name -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">اسم العائلة</label>
+                    <input type="text" name="last_name" value="{{ user_obj.last_name }}"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold text-sm">البريد الإلكتروني</label>
+                <input type="email" name="email" value="{{ user_obj.email }}" dir="ltr"
+                    class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+            </div>
+
+            {% if user_obj.id != request.user.id %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <!-- Role -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">الدور الوظيفي</label>
+                    <select name="role"
+                        class="form-select w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        <option value="doctor" {% if user_obj.role == 'doctor' %}selected{% endif %}>طبيب</option>
+                        <option value="receptionist" {% if user_obj.role == 'receptionist' %}selected{% endif %}>موظف استقبال</option>
+
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="flex items-center h-[76px]"> <!-- Height matched to input group -->
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                        <input type="checkbox" name="is_active"
+                            class="form-checkbox size-5 text-primary rounded border-gray-300 focus:ring-primary" {% if
+                            user_obj.is_active %}checked{% endif %}>
+                        <span class="font-semibold text-sm">حساب نشط</span>
+                    </label>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-4 bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 rounded-lg text-sm">
+                <span class="font-bold">ملاحظة:</span> لا يمكنك تغيير دورك الوظيفي أو حالة حسابك بنفسك.
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3">
+                <a href="{% url 'users_list' %}"
+                    class="px-6 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium">
+                    إلغاء
+                </a>
+                <button type="submit"
+                    class="px-8 py-2.5 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:brightness-105 transition-all">
+                    حفظ التغييرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

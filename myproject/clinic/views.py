@@ -41,7 +41,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
-from .models import Patient, Appointment
+from .models import Patient, Appointment, User
 from datetime import date, datetime
 
 @login_required
@@ -295,7 +295,112 @@ def reports(request):
 
 @login_required
 def settings(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        
+        try:
+            # Update Full Name
+            if full_name:
+                name_parts = full_name.split(' ', 1)
+                request.user.first_name = name_parts[0]
+                request.user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+            
+            # Update Email
+            if email:
+                request.user.email = email
+                
+            request.user.save()
+            messages.success(request, 'تم تحديث بيانات المستخدم بنجاح.')
+            return redirect('settings')
+        except Exception as e:
+            messages.error(request, f'حدث خطأ أثناء التحديث: {e}')
+            
     return render(request, 'clinic/settings.html')
+
+from django.core.exceptions import PermissionDenied
+
+def doctor_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role == 'doctor':
+            return view_func(request, *args, **kwargs)
+        raise PermissionDenied
+    return _wrapped_view
+
+@login_required
+@doctor_required
+def users_list(request):
+    users = User.objects.all().order_by('username')
+    return render(request, 'clinic/users_list.html', {'users': users})
+
+@login_required
+@doctor_required
+def edit_user(request, pk):
+    try:
+        user_to_edit = get_object_or_404(User, pk=pk)
+        
+        if request.method == 'POST':
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            role = request.POST.get('role')
+            is_active = request.POST.get('is_active') == 'on'
+            
+            try:
+                user_to_edit.first_name = first_name
+                user_to_edit.last_name = last_name
+                user_to_edit.email = email
+                
+                # Prevent changing own role/active status
+                if request.user.pk != user_to_edit.pk:
+                    user_to_edit.role = role
+                    user_to_edit.is_active = is_active
+                    
+                user_to_edit.save()
+                messages.success(request, 'تم تحديث بيانات المستخدم بنجاح.')
+                return redirect('users_list')
+            except Exception as e:
+                messages.error(request, f'حدث خطأ أثناء التحديث: {e}')
+                
+        return render(request, 'clinic/edit_user.html', {'user_obj': user_to_edit})
+    except Exception as e:
+        # Debugging: Print error to console and returned page
+        print(f"DEBUG ERROR in edit_user: {e}")
+        from django.http import HttpResponse
+        return HttpResponse(f"Error: {e}")
+
+@login_required
+@doctor_required
+def change_user_password(request, pk):
+    user_to_edit = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        if password:
+            user_to_edit.set_password(password)
+            user_to_edit.save()
+            messages.success(request, f'تم تغيير كلمة المرور للمستخدم {user_to_edit.username} بنجاح.')
+            return redirect('users_list')
+        else:
+            messages.error(request, 'يرجى إدخال كلمة المرور.')
+            
+    return render(request, 'clinic/change_password.html', {'user_obj': user_to_edit})
+
+@login_required
+@doctor_required
+def delete_user(request, pk):
+    if request.method == 'POST':
+        user_to_delete = get_object_or_404(User, pk=pk)
+        
+        # Prevent self deletion
+        if user_to_delete.pk == request.user.pk:
+            messages.error(request, 'لا يمكنك حذف حسابك الحالي.')
+        else:
+            user_name = user_to_delete.username
+            user_to_delete.delete()
+            messages.success(request, f'تم حذف المستخدم {user_name} بنجاح.')
+            
+    return redirect('users_list')
 
 def custom_404(request, exception):
     return render(request, 'clinic/404.html', status=404)
