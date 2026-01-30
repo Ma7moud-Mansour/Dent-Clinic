@@ -15,7 +15,15 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            
+            # Helper to handle "Remember Me"
+            if not request.POST.get('remember_me'):
+                # Session expires on browser close
+                request.session.set_expiry(0)
+            # Else: uses default session expiry (typically 2 weeks)
+            
+            next_url = request.POST.get('next') or request.GET.get('next') or 'dashboard'
+            return redirect(next_url)
         else:
             return render(request, 'clinic/login.html', {'message': 'اسم المستخدم أو كلمة المرور غير صحيحة'})
             
