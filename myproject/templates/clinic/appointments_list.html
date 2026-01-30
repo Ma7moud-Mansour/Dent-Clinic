@@ -20,21 +20,22 @@
     </div>
 
     <!-- Filters and Search -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <form method="GET" action="{% url 'appointments_list' %}" class="flex flex-col md:flex-row gap-4 mb-6">
         <div
             class="flex-1 bg-white dark:bg-[#1a2e30] p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
             <label class="flex items-center w-full h-12 px-4 gap-3">
                 <span class="material-symbols-outlined text-primary" style="font-size: 24px;">search</span>
-                <input
+                <input name="q" value="{{ search_query }}"
                     class="form-input flex-1 border-none bg-transparent focus:ring-0 text-[#111718] dark:text-white placeholder:text-gray-400 text-base font-normal leading-normal"
-                    placeholder="بحث باسم المريض أو الطبيب..." value="" />
+                    placeholder="بحث باسم المريض..." />
             </label>
         </div>
         <div class="flex gap-4">
-            <input type="date"
+            <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()"
                 class="h-full rounded-xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a2e30] text-[#111718] dark:text-white shadow-sm focus:border-primary focus:ring-0" />
         </div>
-    </div>
+        <button type="submit" class="hidden">Search</button>
+    </form>
 
     <!-- Data Table -->
     <div
@@ -45,110 +46,61 @@
                     <tr class="bg-gray-50 dark:bg-[#1e3436]">
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">الوقت</th>
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">المريض</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">الإجراء</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">الطبيب</th>
+                        <!-- Removed Procedure and Doctor columns as per requirements -->
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">ملاحظات</th>
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الحالة</th>
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الإجراءات
                         </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <!-- Example Row 1 -->
+                    {% for appointment in appointments %}
                     <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">09:30 ص</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ appointment.time }}</td>
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-3">
                                 <div
                                     class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    أم</div>
-                                <span class="text-[#111718] dark:text-white font-medium">أحمد محمد علي</span>
+                                    {{ appointment.patient.full_name|slice:":2" }}</div>
+                                <a href="{% url 'patient_profile' appointment.patient.id %}"
+                                    class="text-[#111718] dark:text-white font-medium hover:text-primary">{{appointment.patient.full_name }}</a>
                             </div>
                         </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">فحص دوري</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">د. سارة الهاشمي</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-xs">{{appointment.notes|default:"-"|truncatechars:50 }}</td>
                         <td class="px-6 py-5 text-center">
+                            {% if appointment.status == 'scheduled' %}
                             <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">انتظار</span>
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">مجدول</span>
+                            {% elif appointment.status == 'completed' %}
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">مكتمل</span>
+                            {% elif appointment.status == 'cancelled' %}
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">ملغى</span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تعديل">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button
+                                {% if appointment.status == 'scheduled' %}
+                                <a href="{% url 'update_appointment_status' appointment.id 'completed' %}"
+                                    class="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                                    title="إتمام">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                </a>
+                                <a href="{% url 'update_appointment_status' appointment.id 'cancelled' %}"
                                     class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                     title="إلغاء">
                                     <span class="material-symbols-outlined">cancel</span>
-                                </button>
+                                </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
-                    <!-- Example Row 2 -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">10:00 ص</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 font-bold text-xs">
-                                    خ ع</div>
-                                <span class="text-[#111718] dark:text-white font-medium">خالد عبد الله</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">حشو عصب</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">د. ماجد الفهد</td>
-                        <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">مؤكد</span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تعديل">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                    title="إلغاء">
-                                    <span class="material-symbols-outlined">cancel</span>
-                                </button>
-                            </div>
-                        </td>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-gray-500">لا توجد مواعيد في هذا التاريخ.</td>
                     </tr>
-                    <!-- Example Row 3 -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">11:15 ص</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-500 font-bold text-xs">
-                                    ن ص</div>
-                                <span class="text-[#111718] dark:text-white font-medium">نورة الصالح</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">تقويم أسنان</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400">د. سارة الهاشمي</td>
-                        <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-xs font-bold">مكتمل</span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تعديل">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                    title="إلغاء">
-                                    <span class="material-symbols-outlined">cancel</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
