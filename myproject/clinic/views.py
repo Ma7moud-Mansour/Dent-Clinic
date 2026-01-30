@@ -1,8 +1,31 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+        
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            return render(request, 'clinic/login.html', {'message': 'اسم المستخدم أو كلمة المرور غير صحيحة'})
+            
     return render(request, 'clinic/login.html')
 
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@login_required
 def dashboard(request):
     return render(request, 'clinic/dashboard.html')
 
@@ -13,6 +36,7 @@ from django.contrib import messages
 from .models import Patient, Appointment
 from datetime import date, datetime
 
+@login_required
 def patients_list(request):
     query = request.GET.get('q', '')
     patients = Patient.objects.all().order_by('-created_at')
@@ -33,6 +57,7 @@ def patients_list(request):
         'count': paginator.count
     })
 
+@login_required
 def add_patient(request):
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
@@ -61,6 +86,7 @@ def add_patient(request):
             
     return render(request, 'clinic/add_patient.html')
 
+@login_required
 def edit_patient(request, id):
     patient = get_object_or_404(Patient, id=id)
     
@@ -88,6 +114,7 @@ def edit_patient(request, id):
     
     return render(request, 'clinic/add_patient.html', {'patient': patient})
 
+@login_required
 def delete_patient(request, id):
     patient = get_object_or_404(Patient, id=id)
     if request.method == 'POST':
@@ -95,6 +122,7 @@ def delete_patient(request, id):
         messages.success(request, 'Patient deleted successfully.')
     return redirect('patients_list')
 
+@login_required
 def add_xray(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     if request.method == 'POST':
@@ -119,6 +147,7 @@ def add_xray(request, patient_id):
             
     return redirect('patient_profile', id=patient_id)
 
+@login_required
 def update_medical_notes(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     if request.method == 'POST':
@@ -128,6 +157,7 @@ def update_medical_notes(request, patient_id):
         messages.success(request, 'Medical notes updated successfully.')
     return redirect('patient_profile', id=patient_id)
 
+@login_required
 def patient_profile(request, id):
     patient = get_object_or_404(Patient, id=id)
     
@@ -153,11 +183,13 @@ def patient_profile(request, id):
         'latest_xray': latest_xray
     })
 
+@login_required
 def visits(request):
     return render(request, 'clinic/visits.html')
 
 
 
+@login_required
 def appointments_list(request):
     selected_date_str = request.GET.get('date')
     search_query = request.GET.get('q', '')
@@ -179,6 +211,7 @@ def appointments_list(request):
         'search_query': search_query
     })
 
+@login_required
 def add_appointment(request):
     patients = Patient.objects.all()
     
@@ -227,6 +260,7 @@ def add_appointment(request):
         'patients': patients
     })
 
+@login_required
 def update_appointment_status(request, id, status):
     appointment = get_object_or_404(Appointment, id=id)
     if status in ['scheduled', 'completed', 'cancelled']:
@@ -235,17 +269,22 @@ def update_appointment_status(request, id, status):
         messages.success(request, f'Appointment marked as {status}.')
     return redirect('appointments_list')
 
+@login_required
 def invoices_list(request):
     return render(request, 'clinic/invoices_list.html')
 
+@login_required
 def add_invoice(request):
     return render(request, 'clinic/add_invoice.html')
 
+@login_required
 def invoice_detail(request, id):
     return render(request, 'clinic/invoice_detail.html')
 
+@login_required
 def reports(request):
     return render(request, 'clinic/reports.html')
 
+@login_required
 def settings(request):
     return render(request, 'clinic/settings.html')
