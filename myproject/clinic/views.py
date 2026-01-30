@@ -296,3 +296,6 @@ def reports(request):
 @login_required
 def settings(request):
     return render(request, 'clinic/settings.html')
+
+def custom_404(request, exception):
+    return render(request, 'clinic/404.html', status=404)

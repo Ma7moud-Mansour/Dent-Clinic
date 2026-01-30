@@ -1,0 +1,110 @@
+{% extends 'clinic/base.html' %}
+{% load static %}
+
+{% block title %}صفحة غير موجودة | 404{% endblock %}
+
+{% block head_extra %}
+<style>
+    @keyframes float {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-20px) rotate(5deg);
+        }
+
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+    }
+
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1.3);
+            opacity: 0;
+        }
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-ring 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+
+    .bg-grid-pattern {
+        background-size: 40px 40px;
+        background-image:
+            linear-gradient(to right, rgba(19, 218, 236, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(19, 218, 236, 0.05) 1px, transparent 1px);
+    }
+</style>
+{% endblock %}
+
+{% block body_class %}bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center
+overflow-hidden bg-grid-pattern text-[#111718] dark:text-white{% endblock %}
+
+{% block content %}
+<div class="relative w-full max-w-lg mx-auto p-4 flex flex-col items-center justify-center text-center">
+
+    <!-- Animated Medical/Dental Element -->
+    <div class="relative mb-12">
+        <!-- Floating bubbles/blobs -->
+        <div
+            class="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse-slow w-64 h-64 -z-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        </div>
+        <div class="absolute -top-4 -right-8 w-16 h-16 bg-[#13daec]/20 rounded-full blur-xl animate-float"
+            style="animation-delay: 1s;"></div>
+        <div class="absolute -bottom-8 -left-8 w-20 h-20 bg-primary/20 rounded-full blur-xl animate-float"
+            style="animation-delay: 2s;"></div>
+
+        <!-- Icon Container -->
+        <div
+            class="relative w-40 h-40 bg-white dark:bg-[#1a2e30] rounded-[2rem] shadow-2xl flex items-center justify-center transform rotate-3 hover:rotate-0 transition-all duration-500 animate-float border border-gray-100 dark:border-gray-800">
+            <span class="material-symbols-outlined text-primary text-[6rem] opacity-90">
+                dentistry
+            </span>
+            <!-- Error Badge -->
+            <div
+                class="absolute -top-3 -right-3 bg-red-500 text-white font-bold text-sm px-3 py-1.5 rounded-full shadow-lg border-4 border-white dark:border-[#1a2e30]">
+                404
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Content -->
+    <div class="space-y-4 relative z-10 px-6">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight text-[#111718] dark:text-white">
+            عفواً، ضللنا الطريق
+        </h1>
+
+        <p class="text-lg text-[#618689] dark:text-gray-400 font-medium max-w-xs mx-auto leading-relaxed">
+            يبدو أن الصفحة التي تبحث عنها قد تم خلعها أو أنها لم تكن موجودة من قبل!
+        </p>
+
+        <!-- Actions -->
+        <div class="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+            <a href="{% url 'dashboard' %}"
+                class="px-8 py-3.5 rounded-xl bg-primary hover:bg-[#11c5d4] text-white font-bold text-base shadow-lg shadow-primary/25 transition-all w-full sm:w-auto hover:-translate-y-1 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-xl">home</span>
+                العودة للرئيسية
+            </a>
+
+            <button onclick="history.back()"
+                class="px-8 py-3.5 rounded-xl bg-white dark:bg-[#1a2e30] border border-gray-200 dark:border-gray-700 text-[#111718] dark:text-white font-bold text-base shadow-sm hover:bg-gray-50 dark:hover:bg-[#233538] transition-all w-full sm:w-auto flex items-center justify-center gap-2 group">
+                <span
+                    class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_forward</span>
+                الصفحة السابقة
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
