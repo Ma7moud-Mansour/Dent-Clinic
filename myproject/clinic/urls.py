@@ -13,8 +13,9 @@ urlpatterns = [
     path('patients/<int:patient_id>/xray/add/', views.add_xray, name='add_xray'),
     path('patients/<int:patient_id>/notes/update/', views.update_medical_notes, name='update_medical_notes'),
     path('patients/<int:id>/', views.patient_profile, name='patient_profile'),
-    path('visits/', views.visits, name='visits'),
-    path('visits-list/', views.visits_list, name='visits_list'),
+    path('visits/', views.visits_list, name='visits_list'),
+    path('visits/add/', views.add_visit, name='add_visit'),
+    path('visits/create/', views.create_visit, name='create_visit'),
     path('appointments/', views.appointments_list, name='appointments_list'),
     path('appointments/add/', views.add_appointment, name='add_appointment'),
     path('appointments/<int:id>/status/<str:status>/', views.update_appointment_status, name='update_appointment_status'),
@@ -32,3 +33,4 @@ urlpatterns = [
     path('settings/users/<int:pk>/delete/', views.delete_user, name='delete_user'),
     path('settings/users/<int:pk>/password/', views.change_user_password, name='change_user_password'),
 ]
+

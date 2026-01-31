@@ -14,6 +14,11 @@
         </div>
         <!-- Export Button -->
         <div class="flex gap-2">
+            <a href="{% url 'add_visit' %}"
+                class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-sm font-bold shadow-sm">
+                <span class="material-symbols-outlined text-lg">add</span>
+                إضافة زيارة جديدة
+            </a>
             <button
                 class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1a2e30] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1e3436] transition-all text-sm font-medium">
                 <span class="material-symbols-outlined text-lg">download</span>
@@ -37,7 +42,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي الزيارات</p>
-                <p class="text-2xl font-bold text-[#111718] dark:text-white">٢٤</p>
+                <p class="text-2xl font-bold text-[#111718] dark:text-white">{{ total_count }}</p>
             </div>
         </div>
         <div
@@ -48,7 +53,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">مكتملة</p>
-                <p class="text-2xl font-bold text-green-600 dark:text-green-400">٢٠</p>
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ completed_count }}</p>
             </div>
         </div>
         <div
@@ -58,25 +63,26 @@
                 <span class="material-symbols-outlined text-2xl">pending</span>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">قيد الانتظار</p>
-                <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">٣</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">غير مكتملة</p>
+                <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ pending_count }}</p>
             </div>
         </div>
         <div
             class="bg-white dark:bg-[#1a2e30] p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
-            <div class="size-12 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center text-red-500">
-                <span class="material-symbols-outlined text-2xl">cancel</span>
+            <div
+                class="size-12 bg-purple-50 dark:bg-purple-900/20 rounded-lg flex items-center justify-center text-purple-500">
+                <span class="material-symbols-outlined text-2xl">calendar_month</span>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">ملغاة</p>
-                <p class="text-2xl font-bold text-red-600 dark:text-red-400">١</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">هذه الصفحة</p>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ visits|length }}</p>
             </div>
         </div>
     </div>
 
     <!-- Filters Section -->
     <div class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 mb-6">
-        <div class="flex flex-col xl:flex-row gap-4">
+        <form method="GET" action="{% url 'visits_list' %}" class="flex flex-col xl:flex-row gap-4">
             <!-- Patient Search with Autocomplete hint -->
             <div class="flex-1">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -88,77 +94,65 @@
                 <div class="relative">
                     <span
                         class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input type="text" placeholder="الاسم، رقم الهاتف، أو رقم المريض..."
+                    <input type="text" name="q" value="{{ search_query }}"
+                        placeholder="الاسم، رقم الهاتف، أو رقم المريض..."
                         class="w-full pr-10 pl-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm" />
-                    <!-- Autocomplete dropdown hint (UI only) -->
-                    <div
-                        class="hidden absolute top-full right-0 left-0 mt-1 bg-white dark:bg-[#1e3436] border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 max-h-48 overflow-auto">
-                        <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-3">
-                            <div
-                                class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                                أم</div>
-                            <div>
-                                <p class="text-sm font-medium text-[#111718] dark:text-white">أحمد محمود خالد</p>
-                                <p class="text-xs text-gray-400">0501234567 • #P001</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <!-- Date From -->
             <div class="w-full xl:w-36">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">من تاريخ</label>
-                <input type="date"
+                <input type="date" name="date_from" value="{{ date_from }}"
                     class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm" />
             </div>
 
             <!-- Date To -->
             <div class="w-full xl:w-36">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">إلى تاريخ</label>
-                <input type="date"
+                <input type="date" name="date_to" value="{{ date_to }}"
                     class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm" />
             </div>
 
             <!-- Status Filter -->
             <div class="w-full xl:w-36">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الحالة</label>
-                <select
+                <select name="status"
                     class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm">
-                    <option value="">الكل</option>
-                    <option value="completed">مكتملة</option>
-                    <option value="pending">قيد الانتظار</option>
-                    <option value="cancelled">ملغاة</option>
+                    <option value="" {% if not status_filter %}selected{% endif %}>الكل</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>مكتملة</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>غير مكتملة</option>
                 </select>
             </div>
 
             <!-- Filter Actions -->
             <div class="flex items-end gap-2">
-                <!-- Filter Button with Active Count -->
-                <button
+                <!-- Filter Button -->
+                <button type="submit"
                     class="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-md shadow-primary/20 text-sm">
                     <span class="material-symbols-outlined text-lg">filter_alt</span>
                     <span>تصفية</span>
-                    <!-- Active filter count badge (show when filters are applied) -->
-                    <span
-                        class="hidden size-5 bg-white text-primary rounded-full text-xs font-bold flex items-center justify-center">2</span>
                 </button>
-                <!-- Clear All Button (show when filters are applied) -->
-                <button
-                    class="hidden px-4 py-2.5 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg font-medium transition-all text-sm flex items-center gap-1">
+                <!-- Clear All Button -->
+                {% if search_query or date_from or date_to or status_filter %}
+                <a href="{% url 'visits_list' %}"
+                    class="px-4 py-2.5 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg font-medium transition-all text-sm flex items-center gap-1">
                     <span class="material-symbols-outlined text-lg">close</span>
                     مسح الكل
-                </button>
+                </a>
+                {% endif %}
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Data Table -->
+    {% if visits %}
     <div
         class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
             <h2 class="font-bold text-lg text-[#111718] dark:text-white">قائمة الزيارات</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">عرض ٥ من أصل ٢٤ زيارة</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">عرض <span
+                    class="font-bold text-[#111718] dark:text-white">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> من <span class="font-bold text-[#111718] dark:text-white">{{ page_obj.paginator.count }}</span> زيارة</p>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-right border-collapse">
@@ -191,320 +185,140 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <!-- Row 1: Completed, Fully Paid -->
+                    {% for visit in visits %}
                     <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
                         <td class="px-5 py-4">
                             <div class="flex flex-col">
-                                <span class="font-bold text-[#111718] dark:text-white text-sm">٢٥ يناير ٢٠٢٦</span>
-                                <span class="text-xs text-gray-400 mt-0.5">١١:٠٠ ص</span>
+                                <span class="font-bold text-[#111718] dark:text-white text-sm">{{ visit.visit_date }}</span>
                             </div>
                         </td>
                         <td class="px-5 py-4">
-                            <button class="flex items-center gap-2.5 hover:text-primary transition-colors"
+                            <a href="{% url 'patient_profile' visit.patient.id %}"
+                                class="flex items-center gap-2.5 hover:text-primary transition-colors"
                                 title="فتح ملف المريض">
                                 <div
                                     class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    أم</div>
-                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">أحمد
-                                    محمود خالد</span>
-                            </button>
+                                    {{ visit.patient.full_name|slice:":2" }}</div>
+                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">{{ visit.patient.full_name }}</span>
+                            </a>
                         </td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">تنظيف أسنان وفحص دوري</td>
-                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">٥٠٠ ر.س</td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">٥٠٠ ر.س</td>
+                        <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">{{ visit.description|default:"-"|truncatewords:8 }}</td>
+                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">{{ visit.total_cost }} ر.س</td>
+                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">{{ visit.total_paid }} ر.س</td>
                         <td class="px-5 py-4">
-                            <!-- Remaining = 0 → Green -->
-                            <span
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                                ٠ ر.س
-                            </span>
+                            {% if visit.remaining_amount <= 0 %} <!-- Remaining=0 → Green -->
+                                <span
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                    {{ visit.remaining_amount }} ر.س
+                                </span>
+                                {% else %}
+                                <!-- Remaining > 0 → Orange -->
+                                <span
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">schedule</span>
+                                    {{ visit.remaining_amount }} ر.س
+                                </span>
+                                {% endif %}
                         </td>
                         <td class="px-5 py-4 text-center">
-                            <!-- Completed Status with Icon -->
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">check_circle</span>
-                                مكتملة
-                            </span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <!-- Actions Dropdown -->
-                            <div class="relative">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    title="المزيد">
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
-                                <!-- Dropdown Menu (hidden by default) -->
-                                <div
-                                    class="hidden absolute left-0 top-full mt-1 w-40 bg-white dark:bg-[#1e3436] border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
-                                    <button
-                                        class="w-full px-4 py-2.5 text-right text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors">
-                                        <span class="material-symbols-outlined text-lg">visibility</span>
-                                        عرض التفاصيل
-                                    </button>
-                                    <button
-                                        class="w-full px-4 py-2.5 text-right text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors">
-                                        <span class="material-symbols-outlined text-lg">edit</span>
-                                        تعديل
-                                    </button>
-                                    <button
-                                        class="w-full px-4 py-2.5 text-right text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors">
-                                        <span class="material-symbols-outlined text-lg">print</span>
-                                        طباعة
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Row 2: Completed, Partial Payment (Remaining > 0) -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-5 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#111718] dark:text-white text-sm">٢٠ يناير ٢٠٢٦</span>
-                                <span class="text-xs text-gray-400 mt-0.5">٠٣:٣٠ م</span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <button class="flex items-center gap-2.5 hover:text-primary transition-colors"
-                                title="فتح ملف المريض">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    سع</div>
-                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">سارة
-                                    عبدالله العمري</span>
-                            </button>
-                        </td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">حشو عصب وتركيب تاج</td>
-                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">٢,٥٠٠ ر.س</td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">١,٥٠٠ ر.س</td>
-                        <td class="px-5 py-4">
-                            <!-- Remaining > 0 → Orange -->
-                            <span
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">schedule</span>
-                                ١,٠٠٠ ر.س
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">check_circle</span>
-                                مكتملة
-                            </span>
+                            {% if visit.remaining_amount <= 0 %} <!-- Completed Status -->
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                                    مكتمل
+                                </span>
+                                {% else %}
+                                <!-- Pending Status -->
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">pending</span>
+                                    غير مكتمل
+                                </span>
+                                {% endif %}
                         </td>
                         <td class="px-5 py-4">
                             <div class="relative">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    title="المزيد">
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
+                                <a href="{% url 'patient_profile' visit.patient.id %}"
+                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all inline-flex"
+                                    title="عرض ملف المريض">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Row 3: Pending Visit -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-5 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#111718] dark:text-white text-sm">١٨ يناير ٢٠٢٦</span>
-                                <span class="text-xs text-gray-400 mt-0.5">٠٩:٠٠ ص</span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <button class="flex items-center gap-2.5 hover:text-primary transition-colors"
-                                title="فتح ملف المريض">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    فا</div>
-                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">فاطمة
-                                    أحمد الزهراني</span>
-                            </button>
-                        </td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">علاج تسوس وحشو</td>
-                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">٨٠٠ ر.س</td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">٠ ر.س</td>
-                        <td class="px-5 py-4">
-                            <!-- Full Remaining → Orange -->
-                            <span
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">schedule</span>
-                                ٨٠٠ ر.س
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <!-- Pending Status with Icon -->
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">pending</span>
-                                قيد الانتظار
-                            </span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="relative">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    title="المزيد">
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Row 4: Cancelled Visit -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-5 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#111718] dark:text-white text-sm">١٥ يناير ٢٠٢٦</span>
-                                <span class="text-xs text-gray-400 mt-0.5">١٠:٠٠ ص</span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <button class="flex items-center gap-2.5 hover:text-primary transition-colors"
-                                title="فتح ملف المريض">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    مح</div>
-                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">محمد
-                                    حسن الفهد</span>
-                            </button>
-                        </td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">تقويم أسنان - جلسة متابعة</td>
-                        <td
-                            class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm line-through opacity-60">
-                            ٣٠٠ ر.س</td>
-                        <td class="px-5 py-4 text-gray-400 text-sm">-</td>
-                        <td class="px-5 py-4">
-                            <!-- Cancelled → Gray dash -->
-                            <span
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full text-xs font-bold">
-                                —
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <!-- Cancelled Status with Icon -->
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">cancel</span>
-                                ملغاة
-                            </span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="relative">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    title="المزيد">
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Row 5: Completed with Discount -->
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-5 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#111718] dark:text-white text-sm">١٠ يناير ٢٠٢٦</span>
-                                <span class="text-xs text-gray-400 mt-0.5">٠٢:٠٠ م</span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <button class="flex items-center gap-2.5 hover:text-primary transition-colors"
-                                title="فتح ملف المريض">
-                                <div
-                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                    نم</div>
-                                <span class="text-[#111718] dark:text-white font-medium text-sm hover:underline">نورة
-                                    محمد السالم</span>
-                            </button>
-                        </td>
-                        <td class="px-5 py-4">
-                            <span class="text-gray-600 dark:text-gray-400 text-sm">تبييض أسنان بالليزر</span>
-                            <!-- Discount badge -->
-                            <span
-                                class="inline-flex items-center gap-1 mr-2 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded text-xs font-medium">
-                                <span class="material-symbols-outlined text-xs">sell</span>
-                                خصم ٢٠٠ ر.س
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">١,٠٠٠ ر.س</td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">١,٠٠٠ ر.س</td>
-                        <td class="px-5 py-4">
-                            <span
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                                ٠ ر.س
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
-                                <span class="material-symbols-outlined text-sm">check_circle</span>
-                                مكتملة
-                            </span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="relative">
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    title="المزيد">
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
         <div
             class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-gray-100 dark:border-gray-800">
             <div class="text-sm text-gray-500 dark:text-gray-400">
-                عرض <span class="font-bold text-[#111718] dark:text-white">1-5</span> من <span
-                    class="font-bold text-[#111718] dark:text-white">24</span> زيارة
+                عرض <span class="font-bold text-[#111718] dark:text-white">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> من <span class="font-bold text-[#111718] dark:text-white">{{ page_obj.paginator.count }}</span> زيارة
             </div>
             <div class="flex items-center gap-1">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                    class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </a>
+                {% else %}
                 <button
-                    class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+                    class="flex size-9 items-center justify-center rounded-lg text-gray-300 dark:text-gray-600 cursor-not-allowed"
                     disabled>
                     <span class="material-symbols-outlined text-xl">chevron_right</span>
                 </button>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
                 <button
-                    class="text-sm font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-sm">1</button>
-                <button
-                    class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">2</button>
-                <button
-                    class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">3</button>
-                <span class="text-gray-400 px-1">...</span>
-                <button
-                    class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">5</button>
-                <button
-                    class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
-                    <span class="material-symbols-outlined text-xl">chevron_left</span>
-                </button>
+                    class="text-sm font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-sm">{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a
+                    href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                    class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    {{ num }}</a>
+                {% endif %}
+                {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                        class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </a>
+                    {% else %}
+                    <button
+                        class="flex size-9 items-center justify-center rounded-lg text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                        disabled>
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </button>
+                    {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
-
-    <!-- Empty State (Show when no visits match filters) -->
+    {% else %}
+    <!-- Empty State -->
     <div
-        class="hidden bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-12 text-center">
+        class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-12 text-center">
         <div class="size-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-5">
-            <span class="material-symbols-outlined text-4xl text-gray-400">search_off</span>
+            <span class="material-symbols-outlined text-4xl text-gray-400">event_busy</span>
         </div>
-        <h3 class="text-xl font-bold text-[#111718] dark:text-white mb-2">لا توجد نتائج</h3>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-md mx-auto">لم يتم العثور على زيارات تطابق معايير
-            البحث. جرّب تغيير الفلاتر أو مسحها.</p>
-        <button
-            class="px-5 py-2.5 text-primary hover:bg-primary/10 rounded-lg font-medium transition-all text-sm flex items-center gap-2 mx-auto">
+        <h3 class="text-xl font-bold text-[#111718] dark:text-white mb-2">لا توجد زيارات مسجلة حتى الآن</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">{% if search_query or date_from or date_to or status_filter %}لم يتم العثور على زيارات تطابق معايير البحث. جرّب تغيير الفلاتر أو مسحها.{% else %}عند تسجيل زيارات للمرضى، ستظهر هنا في هذه القائمة.{% endif %}</p>
+        {% if search_query or date_from or date_to or status_filter %}
+        <a href="{% url 'visits_list' %}"
+            class="px-5 py-2.5 text-primary hover:bg-primary/10 rounded-lg font-medium transition-all text-sm inline-flex items-center gap-2 mx-auto">
             <span class="material-symbols-outlined">restart_alt</span>
             مسح جميع الفلاتر
-        </button>
+        </a>
+        {% endif %}
     </div>
+    {% endif %}
 
     <!-- Alternative Empty State (Show when no visits exist at all) -->
     <!--
