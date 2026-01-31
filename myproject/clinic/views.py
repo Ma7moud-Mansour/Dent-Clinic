@@ -169,6 +169,9 @@ def update_medical_notes(request, patient_id):
 def patient_profile(request, id):
     patient = get_object_or_404(Patient, id=id)
     
+    # Get current tab from query parameter
+    current_tab = request.GET.get('tab', 'summary')
+    
     # "Visits" are now completed appointments
     visits = Appointment.objects.filter(
         patient=patient, 
@@ -184,11 +187,24 @@ def patient_profile(request, id):
     
     latest_xray = patient.xrays.last()
     
+    # Get patient invoices (Visits with financial data)
+    invoices = Visit.objects.filter(patient=patient).order_by('-visit_date')
+    
+    # Calculate financial summary
+    total_cost = sum(invoice.total_cost for invoice in invoices)
+    total_paid = sum(invoice.total_paid for invoice in invoices)
+    remaining = total_cost - total_paid
+    
     return render(request, 'clinic/patient_profile.html', {
         'patient': patient,
         'visits': visits,
         'appointments': appointments,
-        'latest_xray': latest_xray
+        'latest_xray': latest_xray,
+        'current_tab': current_tab,
+        'invoices': invoices,
+        'total_cost': total_cost,
+        'total_paid': total_paid,
+        'remaining': remaining,
     })
 
 @login_required
