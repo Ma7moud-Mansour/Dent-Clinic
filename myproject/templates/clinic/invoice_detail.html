@@ -1,7 +1,7 @@
 {% extends 'clinic/dashboard_layout.html' %}
 {% load static %}
 
-{% block title %}تفاصيل الفاتورة #INV-2024-001 - نظام إدارة عيادة الأسنان{% endblock %}
+{% block title %}تفاصيل الفاتورة #INV-{{ visit.id }} - نظام إدارة عيادة الأسنان{% endblock %}
 {% block header_title %}تفاصيل الفاتورة{% endblock %}
 
 {% block page_content %}
@@ -40,7 +40,7 @@
                 <div class="text-left">
                     <h2 class="text-4xl font-black text-gray-200 dark:text-gray-700 tracking-widest uppercase">فاتورة
                     </h2>
-                    <p class="font-mono text-[#111718] dark:text-white font-bold mt-2">#INV-2024-001</p>
+                    <p class="font-mono text-[#111718] dark:text-white font-bold mt-2">#INV-{{ visit.id }}</p>
                 </div>
             </div>
 
@@ -49,24 +49,25 @@
                 class="flex flex-col md:flex-row justify-between gap-8 mb-12 pb-12 border-b border-gray-100 dark:border-gray-800">
                 <div class="flex flex-col gap-1">
                     <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">بيانات المريض</h3>
-                    <p class="text-lg font-bold text-[#111718] dark:text-white">أحمد محمد علي</p>
-                    <p class="text-sm text-gray-500">حي العليا، الرياض</p>
-                    <p class="text-sm text-gray-500">0501234567</p>
+                    <p class="text-lg font-bold text-[#111718] dark:text-white">{{ visit.patient.full_name }}</p>
+                    <p class="text-sm text-gray-500">{{ visit.patient.phone }}</p>
                 </div>
                 <div class="flex flex-col gap-1 text-left">
                     <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">تفاصيل الدفع</h3>
                     <div class="flex justify-between gap-8">
                         <span class="text-gray-500">تاريخ الإصدار:</span>
-                        <span class="font-bold text-[#111718] dark:text-white">20 مايو 2024</span>
-                    </div>
-                    <div class="flex justify-between gap-8">
-                        <span class="text-gray-500">تاريخ الاستحقاق:</span>
-                        <span class="font-bold text-[#111718] dark:text-white">20 مايو 2024</span>
+                        <span class="font-bold text-[#111718] dark:text-white">{{ visit.visit_date }}</span>
                     </div>
                     <div class="flex justify-between gap-8 mt-2">
                         <span class="text-gray-500">الحالة:</span>
-                        <span
-                            class="text-green-600 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded text-xs">مدفوع</span>
+                        {% if visit.remaining_amount <= 0 %} <span
+                            class="text-green-600 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded text-xs">
+                            مدفوع</span>
+                            {% else %}
+                            <span
+                                class="text-red-600 font-bold bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded text-xs">غير
+                                مدفوع</span>
+                            {% endif %}
                     </div>
                 </div>
             </div>
@@ -76,23 +77,14 @@
                 <thead>
                     <tr class="border-b-2 border-primary/10">
                         <th class="py-4 font-bold text-[#111718] dark:text-white">وصف الخدمة</th>
-                        <th class="py-4 font-bold text-[#111718] dark:text-white text-center">الكمية</th>
-                        <th class="py-4 font-bold text-[#111718] dark:text-white text-center">السعر</th>
                         <th class="py-4 font-bold text-[#111718] dark:text-white text-left">المجموع</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     <tr>
-                        <td class="py-4 text-gray-600 dark:text-gray-300">كشف أسنان شامل + أشعة</td>
-                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">1</td>
-                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">150 ر.س</td>
-                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">150 ر.س</td>
-                    </tr>
-                    <tr>
-                        <td class="py-4 text-gray-600 dark:text-gray-300">تنظيف جير وتلميع</td>
-                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">1</td>
-                        <td class="py-4 text-center text-gray-600 dark:text-gray-300">200 ر.س</td>
-                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">200 ر.س</td>
+                        <td class="py-4 text-gray-600 dark:text-gray-300">{{ visit.description }}</td>
+                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ر.س
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -100,19 +92,22 @@
             <!-- Summary -->
             <div class="flex justify-end mb-12">
                 <div class="w-full md:w-1/2 flex flex-col gap-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600 dark:text-gray-400 font-medium">المجموع الفرعي</span>
-                        <span class="font-bold text-[#111718] dark:text-white">350 ر.س</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600 dark:text-gray-400 font-medium">ضريبة القيمة المضافة (15%)</span>
-                        <span class="font-bold text-[#111718] dark:text-white">52.5 ر.س</span>
-                    </div>
-                    <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
                     <div class="flex justify-between items-center">
                         <span class="text-lg font-black text-[#111718] dark:text-white">الإجمالي المستحق</span>
-                        <span class="text-2xl font-black text-primary">402.5 ر.س</span>
+                        <span class="text-2xl font-black text-primary">{{ visit.total_cost }} ر.س</span>
                     </div>
+                    {% if visit.total_paid > 0 %}
+                    <div class="flex justify-between items-center text-green-600">
+                        <span class="font-bold">المدفوع</span>
+                        <span class="font-bold">{{ visit.total_paid }} ر.س</span>
+                    </div>
+                    {% endif %}
+                    {% if visit.remaining_amount > 0 %}
+                    <div class="flex justify-between items-center text-red-600">
+                        <span class="font-bold">المتبقي</span>
+                        <span class="font-bold">{{ visit.remaining_amount }} ر.س</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
