@@ -195,6 +195,11 @@ def patient_profile(request, id):
 def visits(request):
     return render(request, 'clinic/visits.html')
 
+@login_required
+def visits_list(request):
+    # UI-only view - no backend logic yet
+    return render(request, 'clinic/visits_list.html')
+
 
 
 @login_required
