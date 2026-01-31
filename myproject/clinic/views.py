@@ -519,5 +519,68 @@ def delete_user(request, pk):
             
     return redirect('users_list')
 
+@login_required
+@doctor_required
+def create_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        role = request.POST.get('role', 'receptionist')
+        is_active = request.POST.get('is_active') == 'on'
+        
+        # Validation
+        errors = []
+        
+        if not username:
+            errors.append('اسم المستخدم مطلوب.')
+        elif User.objects.filter(username=username).exists():
+            errors.append('اسم المستخدم موجود بالفعل.')
+            
+        if not password:
+            errors.append('كلمة المرور مطلوبة.')
+        elif password != confirm_password:
+            errors.append('كلمة المرور وتأكيد كلمة المرور غير متطابقين.')
+            
+        if role not in ['doctor', 'receptionist']:
+            errors.append('الدور الوظيفي غير صحيح.')
+            
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'clinic/create_user.html', {
+                'form_data': {
+                    'username': username,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email': email,
+                    'role': role,
+                    'is_active': is_active,
+                }
+            })
+        
+        try:
+            new_user = User.objects.create(
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                role=role,
+                is_active=is_active
+            )
+            new_user.set_password(password)
+            new_user.save()
+            
+            messages.success(request, f'تم إنشاء المستخدم {username} بنجاح.')
+            return redirect('users_list')
+        except Exception as e:
+            messages.error(request, f'حدث خطأ أثناء إنشاء المستخدم: {e}')
+            
+    return render(request, 'clinic/create_user.html')
+
 def custom_404(request, exception):
     return render(request, 'clinic/404.html', status=404)
+

@@ -1,0 +1,104 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% block title %}إضافة مستخدم جديد - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}إضافة مستخدم جديد{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[800px] mx-auto px-4 py-8">
+    <div class="flex items-center gap-2 mb-6 text-sm text-gray-500">
+        <a href="{% url 'settings' %}" class="hover:text-primary">الإعدادات</a>
+        <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <a href="{% url 'users_list' %}" class="hover:text-primary">إدارة المستخدمين</a>
+        <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <span class="text-[#111718] dark:text-white font-medium">إضافة مستخدم جديد</span>
+    </div>
+
+    <div class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-6">إضافة مستخدم جديد</h2>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Username -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">اسم المستخدم <span class="text-red-500">*</span></label>
+                    <input type="text" name="username" value="{{ form_data.username|default:'' }}" required dir="ltr"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+
+                <!-- Email -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">البريد الإلكتروني</label>
+                    <input type="email" name="email" value="{{ form_data.email|default:'' }}" dir="ltr"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- First Name -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">الاسم الأول</label>
+                    <input type="text" name="first_name" value="{{ form_data.first_name|default:'' }}"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+
+                <!-- Last Name -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">اسم العائلة</label>
+                    <input type="text" name="last_name" value="{{ form_data.last_name|default:'' }}"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Password -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">كلمة المرور <span class="text-red-500">*</span></label>
+                    <input type="password" name="password" required dir="ltr"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">تأكيد كلمة المرور <span class="text-red-500">*</span></label>
+                    <input type="password" name="confirm_password" required dir="ltr"
+                        class="form-input w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <!-- Role -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold text-sm">الدور الوظيفي</label>
+                    <select name="role"
+                        class="form-select w-full h-11 px-4 rounded-lg bg-gray-50 dark:bg-[#102022] border border-gray-200 dark:border-[#2a3f41] focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        <option value="doctor" {% if form_data.role == 'doctor' %}selected{% endif %}>طبيب</option>
+                        <option value="receptionist" {% if form_data.role == 'receptionist' or not form_data.role %}selected{% endif %}>موظف استقبال</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="flex items-center h-[76px]">
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                        <input type="checkbox" name="is_active"
+                            class="form-checkbox size-5 text-primary rounded border-gray-300 focus:ring-primary" {% if form_data.is_active or not form_data %}checked{% endif %}>
+                        <span class="font-semibold text-sm">حساب نشط</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3">
+                <a href="{% url 'users_list' %}"
+                    class="px-6 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium">
+                    إلغاء
+                </a>
+                <button type="submit"
+                    class="px-8 py-2.5 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:brightness-105 transition-all">
+                    إنشاء المستخدم
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
