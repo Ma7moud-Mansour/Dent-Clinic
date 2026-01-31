@@ -88,12 +88,16 @@
                 <div class="flex items-center gap-3">
                     <div class="text-left hidden sm:block">
                         <p class="text-sm font-bold text-[#111718] dark:text-white leading-tight">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="text-xs text-[#618689] text-left">أخصائي تقويم</p>
+                        <p class="text-xs text-[#618689] text-left">{{ request.user.role }}</p>
                     </div>
-                    <div class="size-10 rounded-full bg-cover bg-center border-2 border-primary"
-                        data-alt="صورة الطبيب الشخصية"
-                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBv0N2UolZk3-Yiet8zwUDsHB2acCffh1DBz28BljUOImWc79deNrETfaiiEoridnXzYn9SHkNBPLIWPHZBnjPVOl0Sm4cU9hbPHYKSB817NgT5oM17g2nvHhDLlQxR4RsOgPBeTdr7ucbRcJb4Zogmc6OZaU6U3KX3vjKnu3xRDtNEBFRCo5TrcttIHaObSYxnncGaa8yR31WhaxNYwsr8gh8j3CRAgdGjrgosGgpbYDWCv8u1Fhp2EkCaDG_0i-Eq9-ue8ZPY55U')">
+                    <div
+                    class="size-10 rounded-full flex items-center justify-center 
+                            bg-primary text-white font-bold text-sm border-2 border-primary"
+                    title="صورة المستخدم"
+                    >
+                        {{ request.user.get_full_name|slice:":2"|upper }}
                     </div>
+
                 </div>
             </div>
         </header>
