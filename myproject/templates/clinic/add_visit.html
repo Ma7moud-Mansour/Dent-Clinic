@@ -1,0 +1,331 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}إضافة زيارة جديدة - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}إضافة زيارة جديدة{% endblock %}
+
+{% block page_content %}
+<div class="flex justify-center py-10 px-4">
+    <div class="w-full max-w-[960px] flex flex-col gap-6">
+        <!-- Page Heading -->
+        <div class="flex flex-col gap-2 px-4 md:px-0">
+            <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined">clinical_notes</span>
+                <span class="text-sm font-bold uppercase tracking-wider">زيارة جديدة</span>
+            </div>
+            <h1
+                class="text-[#111718] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                تسجيل زيارة جديدة</h1>
+        </div>
+
+        <!-- Form Card -->
+        <div
+            class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#dbe5e6] dark:border-[#2a3f41] overflow-hidden">
+            <form method="POST" class="p-6 md:p-8 space-y-8">
+                {% csrf_token %}
+
+                <!-- Section: Visit Info -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        <h3 class="text-lg font-bold text-[#111718] dark:text-white">بيانات الزيارة</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Patient -->
+                        <div class="flex flex-col gap-2 md:col-span-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">المريض <span
+                                    class="text-red-500">*</span></label>
+                            <div class="relative" id="patientSearchContainer">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689] pointer-events-none z-10">person_search</span>
+                                <input type="text" id="patientSearch" autocomplete="off"
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    placeholder="ابحث عن المريض بالاسم أو رقم الهاتف..." />
+                                <input type="hidden" name="patient" id="patientId" required />
+                                <!-- Dropdown -->
+                                <div id="patientDropdown"
+                                    class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#102022] border border-[#dbe5e6] dark:border-[#2a3f41] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                                    {% for patient in patients %}
+                                    <div class="patient-option px-4 py-3 hover:bg-primary/10 cursor-pointer flex items-center gap-3 transition-colors"
+                                        data-id="{{ patient.id }}" data-name="{{ patient.full_name }}"
+                                        data-phone="{{ patient.phone }}">
+                                        <div
+                                            class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                            {{ patient.full_name|slice:":2" }}</div>
+                                        <div>
+                                            <div class="text-[#111718] dark:text-white font-medium text-sm">
+                                                {{ patient.full_name }}</div>
+                                            <div class="text-gray-500 dark:text-gray-400 text-xs">{{ patient.phone }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="px-4 py-3 text-gray-500 text-sm text-center">لا يوجد مرضى</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Doctor -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الطبيب</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">stethoscope</span>
+                                <select name="doctor"
+                                    class="form-select w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]">
+                                    <option value="">اختر الطبيب (اختياري)...</option>
+                                    {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.get_full_name|default:doctor.username }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Date -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">تاريخ الزيارة <span
+                                    class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">calendar_today</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    type="date" name="visit_date" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Description -->
+                <div class="space-y-6 pt-4">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">description</span>
+                        <h3 class="text-lg font-bold text-[#111718] dark:text-white">تفاصيل الزيارة</h3>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">الوصف / الإجراء <span
+                                class="text-red-500">*</span></label>
+                        <textarea
+                            class="form-textarea w-full p-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                            name="description" rows="3" placeholder="وصف الخدمة المقدمة أو الإجراء الطبي..."
+                            required></textarea>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">ملاحظات إضافية
+                            (اختياري)</label>
+                        <textarea
+                            class="form-textarea w-full p-4 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                            name="notes" rows="2" placeholder="ملاحظات..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Financials -->
+                <div class="space-y-6 pt-4">
+                    <div class="flex items-center gap-2 border-b border-[#f0f4f4] dark:border-[#2a3f41] pb-3">
+                        <span class="material-symbols-outlined text-primary">attach_money</span>
+                        <h3 class="text-lg font-bold text-[#111718] dark:text-white">التفاصيل المالية</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Total Cost -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">إجمالي التكلفة
+                                <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">payments</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    type="number" step="0.01" name="total_cost" placeholder="0.00" required />
+                            </div>
+                        </div>
+
+                        <!-- Payment Status -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">حالة الدفع</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">price_check</span>
+                                <select name="payment_status" id="paymentStatus"
+                                    class="form-select w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]">
+                                    <option value="unpaid" selected>غير مدفوع (معلق)</option>
+                                    <option value="paid">دفع مبلغ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Details (shown when paid is selected) -->
+                    <div id="paymentDetails" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                        <!-- Payment Amount -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">المبلغ
+                                المدفوع</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">paid</span>
+                                <input
+                                    class="form-input w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]"
+                                    type="number" step="0.01" name="payment_amount" placeholder="0.00" />
+                            </div>
+                        </div>
+                        <!-- Payment Method -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#111718] dark:text-gray-200 text-base font-semibold">طريقة الدفع</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#618689]">credit_card</span>
+                                <select name="payment_method"
+                                    class="form-select w-full pr-12 pl-4 h-14 rounded-lg border-[#dbe5e6] dark:border-[#2a3f41] bg-white dark:bg-[#102022] text-[#111718] dark:text-white focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#618689]">
+                                    <option value="cash">نقداً (Cash)</option>
+                                    <option value="visa">فيزا (Visa)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div
+                    class="bg-background-light/50 dark:bg-black/20 p-6 md:px-8 flex flex-col sm:flex-row gap-4 justify-end -mx-6 -mb-6 md:-mx-8 md:-mb-8 mt-4">
+                    <a href="{% url 'visits_list' %}"
+                        class="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-[#2a3f41] transition-all">
+                        <span>إلغاء</span>
+                    </a>
+                    <button type="submit"
+                        class="flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:brightness-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined">save</span>
+                        <span>حفظ الزيارة</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide payment details based on payment status
+    document.getElementById('paymentStatus').addEventListener('change', function () {
+        const paymentDetails = document.getElementById('paymentDetails');
+        if (this.value === 'paid') {
+            paymentDetails.classList.remove('hidden');
+        } else {
+            paymentDetails.classList.add('hidden');
+        }
+    });
+
+    // Patient Search Autocomplete
+    const patientSearch = document.getElementById('patientSearch');
+    const patientDropdown = document.getElementById('patientDropdown');
+    const patientIdInput = document.getElementById('patientId');
+    const patientOptions = document.querySelectorAll('.patient-option');
+
+    // Show dropdown on focus
+    patientSearch.addEventListener('focus', function () {
+        patientDropdown.classList.remove('hidden');
+        filterPatients();
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('patientSearchContainer').contains(e.target)) {
+            patientDropdown.classList.add('hidden');
+        }
+    });
+
+    // Filter patients on input
+    patientSearch.addEventListener('input', filterPatients);
+
+    function filterPatients() {
+        const searchTerm = patientSearch.value.toLowerCase().trim();
+        let hasResults = false;
+
+        patientOptions.forEach(option => {
+            const name = option.dataset.name.toLowerCase();
+            const phone = option.dataset.phone.toLowerCase();
+
+            if (name.includes(searchTerm) || phone.includes(searchTerm)) {
+                option.classList.remove('hidden');
+                hasResults = true;
+            } else {
+                option.classList.add('hidden');
+            }
+        });
+
+        // Show "no results" if no matches
+        const noResults = patientDropdown.querySelector('.no-results');
+        if (!hasResults && patientOptions.length > 0) {
+            if (!noResults) {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results px-4 py-3 text-gray-500 text-sm text-center';
+                noResultsDiv.textContent = 'لا توجد نتائج';
+                patientDropdown.appendChild(noResultsDiv);
+            }
+        } else if (noResults) {
+            noResults.remove();
+        }
+    }
+
+    // Select patient on click
+    patientOptions.forEach(option => {
+        option.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const phone = this.dataset.phone;
+
+            patientSearch.value = `${name} - ${phone}`;
+            patientIdInput.value = id;
+            patientDropdown.classList.add('hidden');
+
+            // Add visual feedback
+            patientSearch.classList.add('border-primary');
+        });
+    });
+
+    // Keyboard navigation
+    let selectedIndex = -1;
+    patientSearch.addEventListener('keydown', function (e) {
+        const visibleOptions = Array.from(patientOptions).filter(opt => !opt.classList.contains('hidden'));
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, visibleOptions.length - 1);
+            highlightOption(visibleOptions);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            highlightOption(visibleOptions);
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            visibleOptions[selectedIndex]?.click();
+        } else if (e.key === 'Escape') {
+            patientDropdown.classList.add('hidden');
+        }
+    });
+
+    function highlightOption(options) {
+        options.forEach((opt, idx) => {
+            if (idx === selectedIndex) {
+                opt.classList.add('bg-primary/10');
+                opt.scrollIntoView({ block: 'nearest' });
+            } else {
+                opt.classList.remove('bg-primary/10');
+            }
+        });
+    }
+
+    // Form validation - ensure patient is selected
+    document.querySelector('form').addEventListener('submit', function (e) {
+        if (!patientIdInput.value) {
+            e.preventDefault();
+            patientSearch.focus();
+            patientSearch.classList.add('border-red-500', 'ring-red-500');
+            alert('يرجى اختيار المريض من القائمة');
+        }
+    });
+</script>
+{% endblock %}

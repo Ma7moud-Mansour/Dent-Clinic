@@ -197,9 +197,209 @@ def visits(request):
 
 @login_required
 def visits_list(request):
-    # UI-only view - no backend logic yet
-    return render(request, 'clinic/visits_list.html')
+    # Start with all visits ordered by date descending
+    visits = Visit.objects.all().order_by('-visit_date')
+    
+    # Permission check: doctors see all, non-doctors see only their related visits
+    if request.user.role != 'doctor':
+        # Non-doctors (receptionists) can see all visits for now
+        # If specific filtering is needed, uncomment below:
+        # visits = visits.filter(doctor=request.user)
+        pass
+    
+    # Get filter parameters
+    search_query = request.GET.get('q', '').strip()
+    date_from = request.GET.get('date_from', '').strip()
+    date_to = request.GET.get('date_to', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    
+    # Apply patient name search filter
+    if search_query:
+        visits = visits.filter(
+            Q(patient__full_name__icontains=search_query) |
+            Q(patient__phone__icontains=search_query)
+        )
+    
+    # Apply date range filters
+    if date_from:
+        visits = visits.filter(visit_date__gte=date_from)
+    if date_to:
+        visits = visits.filter(visit_date__lte=date_to)
+    
+    # Calculate stats before pagination
+    all_visits_for_stats = visits
+    total_count = all_visits_for_stats.count()
+    
+    # For status filtering, we need to fetch and filter in Python
+    # since remaining_amount is a property, not a DB field
+    visits_list_all = list(visits.select_related('patient', 'doctor'))
+    
+    # Calculate completed and pending counts
+    completed_count = sum(1 for v in visits_list_all if v.remaining_amount <= 0)
+    pending_count = sum(1 for v in visits_list_all if v.remaining_amount > 0)
+    
+    # Apply status filter (based on remaining_amount property)
+    if status_filter == 'completed':
+        visits_list_all = [v for v in visits_list_all if v.remaining_amount <= 0]
+    elif status_filter == 'pending':
+        visits_list_all = [v for v in visits_list_all if v.remaining_amount > 0]
+    
+    # Pagination
+    paginator = Paginator(visits_list_all, 10)  # 10 visits per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'clinic/visits_list.html', {
+        'visits': page_obj,
+        'page_obj': page_obj,
+        'total_count': total_count,
+        'completed_count': completed_count,
+        'pending_count': pending_count,
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+        'status_filter': status_filter,
+    })
 
+
+@login_required
+def add_visit(request):
+    patients = Patient.objects.all().order_by('full_name')
+    doctors = User.objects.filter(role='doctor')
+    
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient')
+        doctor_id = request.POST.get('doctor')
+        visit_date = request.POST.get('visit_date')
+        description = request.POST.get('description')
+        total_cost = request.POST.get('total_cost')
+        notes = request.POST.get('notes', '')
+        
+        if not patient_id or not visit_date or not description or not total_cost:
+            messages.error(request, 'يرجى ملء جميع الحقول المطلوبة.')
+        else:
+            try:
+                patient = Patient.objects.get(id=patient_id)
+                doctor = User.objects.get(id=doctor_id) if doctor_id else None
+                
+                visit = Visit.objects.create(
+                    patient=patient,
+                    doctor=doctor,
+                    visit_date=visit_date,
+                    description=description,
+                    total_cost=total_cost,
+                    notes=notes
+                )
+                
+                # Handle payment if provided
+                payment_status = request.POST.get('payment_status')
+                payment_amount = request.POST.get('payment_amount')
+                payment_method = request.POST.get('payment_method', 'cash')
+                
+                if payment_status == 'paid' and payment_amount:
+                    Payment.objects.create(
+                        visit=visit,
+                        paid_amount=payment_amount,
+                        payment_method=payment_method
+                    )
+                
+                messages.success(request, 'تم تسجيل الزيارة بنجاح.')
+                return redirect('visits_list')
+            except Exception as e:
+                messages.error(request, f'حدث خطأ: {e}')
+    
+    return render(request, 'clinic/add_visit.html', {
+        'patients': patients,
+        'doctors': doctors,
+    })
+
+
+@login_required
+def create_visit(request):
+    """
+    Create a Visit from an Appointment.
+    Pre-fills form with appointment data and links the visit to the appointment.
+    """
+    appointment_id = request.GET.get('appointment_id') or request.POST.get('appointment_id')
+    appointment = None
+    
+    if appointment_id:
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+        
+        # Check if appointment already has a linked visit
+        existing_visit = Visit.objects.filter(appointment=appointment).first()
+        if existing_visit:
+            messages.info(request, 'هذا الموعد تم تحويله لزيارة بالفعل.')
+            return redirect('visits_list')
+        
+        # Check if appointment is already completed or cancelled
+        if appointment.status != 'scheduled':
+            messages.warning(request, 'لا يمكن تحويل هذا الموعد لأنه ليس مجدولاً.')
+            return redirect('appointments_list')
+    
+    doctors = User.objects.filter(role='doctor')
+    
+    if request.method == 'POST':
+        doctor_id = request.POST.get('doctor')
+        visit_date = request.POST.get('visit_date')
+        description = request.POST.get('description')
+        total_cost = request.POST.get('total_cost')
+        notes = request.POST.get('notes', '')
+        
+        if not visit_date or not description or not total_cost:
+            messages.error(request, 'يرجى ملء جميع الحقول المطلوبة.')
+        else:
+            try:
+                # Get patient from appointment
+                patient = appointment.patient if appointment else Patient.objects.get(id=request.POST.get('patient'))
+                doctor = User.objects.get(id=doctor_id) if doctor_id else None
+                
+                # Create the visit linked to the appointment
+                visit = Visit.objects.create(
+                    patient=patient,
+                    doctor=doctor,
+                    appointment=appointment,
+                    visit_date=visit_date,
+                    description=description,
+                    total_cost=total_cost,
+                    notes=notes
+                )
+                
+                # Mark appointment as completed
+                if appointment:
+                    appointment.status = 'completed'
+                    appointment.save()
+                
+                # Handle payment if provided
+                payment_status = request.POST.get('payment_status')
+                payment_amount = request.POST.get('payment_amount')
+                payment_method = request.POST.get('payment_method', 'cash')
+                
+                if payment_status == 'paid' and payment_amount:
+                    Payment.objects.create(
+                        visit=visit,
+                        paid_amount=payment_amount,
+                        payment_method=payment_method
+                    )
+                
+                messages.success(request, 'تم تسجيل الزيارة بنجاح وتحديث حالة الموعد.')
+                return redirect('visits_list')
+            except Exception as e:
+                messages.error(request, f'حدث خطأ: {e}')
+    
+    # Prepare context for pre-filling
+    context = {
+        'doctors': doctors,
+        'from_appointment': appointment is not None,
+    }
+    
+    if appointment:
+        context['appointment'] = appointment
+        context['patient'] = appointment.patient
+        context['prefill_date'] = appointment.date
+        context['prefill_notes'] = appointment.notes or ''
+    
+    return render(request, 'clinic/create_visit.html', context)
 
 
 @login_required

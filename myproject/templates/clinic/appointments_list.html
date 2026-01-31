@@ -63,10 +63,11 @@
                                     class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                                     {{ appointment.patient.full_name|slice:":2" }}</div>
                                 <a href="{% url 'patient_profile' appointment.patient.id %}"
-                                    class="text-[#111718] dark:text-white font-medium hover:text-primary">{{appointment.patient.full_name }}</a>
+                                    class="text-[#111718] dark:text-white font-medium hover:text-primary">{{appointment.patient.full_name}}</a>
                             </div>
                         </td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-xs">{{appointment.notes|default:"-"|truncatechars:50 }}</td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-xs">
+                            {{appointment.notes|default:"-"|truncatechars:50 }}</td>
                         <td class="px-6 py-5 text-center">
                             {% if appointment.status == 'scheduled' %}
                             <span
@@ -82,17 +83,25 @@
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
                                 {% if appointment.status == 'scheduled' %}
-                                <a href="{% url 'update_appointment_status' appointment.id 'completed' %}"
-                                    class="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
-                                    title="إتمام">
-                                    <span class="material-symbols-outlined">check_circle</span>
-                                </a>
-                                <a href="{% url 'update_appointment_status' appointment.id 'cancelled' %}"
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                    title="إلغاء">
-                                    <span class="material-symbols-outlined">cancel</span>
-                                </a>
-                                {% endif %}
+                                {% if appointment.date <= today %} <!-- Complete: Create Visit from Appointment -->
+                                    <a href="{% url 'create_visit' %}?appointment_id={{ appointment.id }}"
+                                        class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                                        title="إتمام وتسجيل زيارة">
+                                        <span class="material-symbols-outlined">task_alt</span>
+                                    </a>
+                                    {% endif %}
+                                    <!-- Mark as completed (status only) -->
+                                    <a href="{% url 'update_appointment_status' appointment.id 'completed' %}"
+                                        class="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                                        title="تحديد كمكتمل">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                    </a>
+                                    <a href="{% url 'update_appointment_status' appointment.id 'cancelled' %}"
+                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                        title="إلغاء">
+                                        <span class="material-symbols-outlined">cancel</span>
+                                    </a>
+                                    {% endif %}
                             </div>
                         </td>
                     </tr>
