@@ -41,7 +41,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
-from .models import Patient, Appointment, User
+from .models import Patient, Appointment, User, Visit, Payment
 from datetime import date, datetime
 
 @login_required
@@ -279,11 +279,128 @@ def update_appointment_status(request, id, status):
 
 @login_required
 def invoices_list(request):
-    return render(request, 'clinic/invoices_list.html')
+    visits = Visit.objects.all().order_by('-visit_date')
+    return render(request, 'clinic/invoices_list.html', {'visits': visits})
+
+
 
 @login_required
 def add_invoice(request):
-    return render(request, 'clinic/add_invoice.html')
+    try:
+        patients = Patient.objects.all()
+        doctors = User.objects.filter(role='doctor')
+        
+        if request.method == 'POST':
+            patient_id = request.POST.get('patient')
+            doctor_id = request.POST.get('doctor')
+            visit_date = request.POST.get('date')
+            description = request.POST.get('description')
+            total_cost = request.POST.get('total_cost')
+            notes = request.POST.get('notes')
+            
+            # DEBUG
+            print(f"DEBUG: add_invoice POST: patient={patient_id}, doctor={doctor_id}, date={visit_date}, cost={total_cost}")
+            
+            if not patient_id or not visit_date or not total_cost:
+                messages.error(request, 'Please fill in required fields.')
+            else:
+                try:
+                    patient = Patient.objects.get(id=patient_id)
+                    doctor = User.objects.get(id=doctor_id) if doctor_id else None
+                    
+                    visit = Visit.objects.create(
+                        patient=patient,
+                        doctor=doctor,
+                        visit_date=visit_date,
+                        description=description,
+                        total_cost=total_cost,
+                        notes=notes
+                    )
+                    
+                    # Handle Payment Status
+                    payment_status = request.POST.get('payment_status')
+                    payment_method = request.POST.get('payment_method')
+                    
+                    if payment_status == 'paid':
+                        Payment.objects.create(
+                            visit=visit,
+                            paid_amount=total_cost,
+                            payment_method=payment_method
+                        )
+                    
+                    messages.success(request, 'Invoice created successfully.')
+                    return redirect('invoices_list')
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    messages.error(request, f'Error creating invoice: {e}')
+                    
+        return render(request, 'clinic/add_invoice.html', {
+            'patients': patients,
+            'doctors': doctors
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return render(request, 'clinic/500_debug.html', {'error': str(e)})
+
+@login_required
+def edit_invoice(request, id):
+    visit = get_object_or_404(Visit, id=id)
+    patients = Patient.objects.all()
+    doctors = User.objects.filter(role='doctor')
+    
+    if request.method == 'POST':
+        visit_date = request.POST.get('date')
+        description = request.POST.get('description')
+        total_cost = request.POST.get('total_cost')
+        notes = request.POST.get('notes')
+        doctor_id = request.POST.get('doctor')
+        
+        try:
+            visit.visit_date = visit_date
+            visit.description = description
+            visit.total_cost = total_cost
+            visit.notes = notes
+            if doctor_id:
+                visit.doctor = User.objects.get(id=doctor_id)
+            visit.save()
+            
+            # Handle Payment Status Update
+            payment_status = request.POST.get('payment_status')
+            payment_method = request.POST.get('payment_method')
+            
+            if payment_status == 'paid':
+                # If marking as paid, and remaining amount > 0, pay the rest
+                if visit.remaining_amount > 0:
+                    Payment.objects.create(
+                        visit=visit,
+                        paid_amount=visit.remaining_amount,
+                        payment_method=payment_method
+                    )
+            elif payment_status == 'unpaid':
+                 # If marking as unpaid, remove all payments
+                 visit.payments.all().delete()
+            
+            messages.success(request, 'Invoice updated successfully.')
+            return redirect('invoices_list')
+        except Exception as e:
+            messages.error(request, f'Error updating invoice: {e}')
+            
+    return render(request, 'clinic/add_invoice.html', {
+        'visit': visit,
+        'patients': patients,
+        'doctors': doctors,
+        'is_edit': True
+    })
+
+@login_required
+def delete_invoice(request, id):
+    visit = get_object_or_404(Visit, id=id)
+    if request.method == 'POST':
+        visit.delete()
+        messages.success(request, 'Invoice deleted successfully.')
+    return redirect('invoices_list')
 
 @login_required
 def invoice_detail(request, id):

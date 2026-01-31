@@ -88,78 +88,58 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    {% for visit in visits %}
                     <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-001</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">أحمد محمد علي</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">20 مايو 2024</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">350 ر.س</td>
+                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-{{ visit.id }}</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ visit.patient.full_name }}
+                        </td>
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">{{ visit.visit_date }}</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ر.س</td>
                         <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">مدفوع</span>
+                            {% if visit.remaining_amount <= 0 %} <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
+                                مدفوع</span>
+                                {% elif visit.total_paid > 0 %}
+                                <span
+                                    class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">جزئي
+                                    ({{ visit.remaining_amount }})</span>
+                                {% else %}
+                                <span
+                                    class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">غير
+                                    مدفوع</span>
+                                {% endif %}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'invoice_detail' 1 %}"
+                                <a href="{% url 'invoice_detail' visit.id %}"
                                     class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                                     title="عرض التفاصيل">
                                     <span class="material-symbols-outlined">visibility</span>
                                 </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تحميل PDF">
-                                    <span class="material-symbols-outlined">download</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-002</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">سارة خالد العتيبي</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">19 مايو 2024</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">1,200 ر.س</td>
-                        <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">معلق</span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'invoice_detail' 1 %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="عرض التفاصيل">
-                                    <span class="material-symbols-outlined">visibility</span>
+                                <a href="{% url 'edit_invoice' visit.id %}"
+                                    class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                                    title="تعديل">
+                                    <span class="material-symbols-outlined">edit</span>
                                 </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تحميل PDF">
-                                    <span class="material-symbols-outlined">download</span>
-                                </button>
+                                <form method="POST" action="{% url 'delete_invoice' visit.id %}"
+                                    onsubmit="return confirm('هل أنت متأكد من حذف هذه الفاتورة؟');" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        title="حذف">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                    <tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors group">
-                        <td class="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">#INV-2024-003</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">فهد بن عيسى</td>
-                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">18 مايو 2024</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">5,000 ر.س</td>
-                        <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">متأخر</span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="{% url 'invoice_detail' 1 %}"
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="عرض التفاصيل">
-                                    <span class="material-symbols-outlined">visibility</span>
-                                </a>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                    title="تحميل PDF">
-                                    <span class="material-symbols-outlined">download</span>
-                                </button>
-                            </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                            لا توجد فواتير مسجلة حالياً
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
