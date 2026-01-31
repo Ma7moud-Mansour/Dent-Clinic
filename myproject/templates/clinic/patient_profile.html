@@ -92,29 +92,175 @@
             <!-- Tabs Navigation -->
             <div class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-sm border border-[#f0f4f4] dark:border-[#2d4548]">
                 <div class="flex border-b border-[#f0f4f4] dark:border-[#2d4548] overflow-x-auto">
-                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 border-primary text-primary font-bold text-sm whitespace-nowrap"
-                        href="#">
+                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 {% if current_tab == 'summary' %}border-primary text-primary font-bold{% else %}border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium{% endif %} text-sm whitespace-nowrap"
+                        href="{% url 'patient_profile' patient.id %}">
                         <span class="material-symbols-outlined text-lg">description</span>
                         الملخص الطبي
                     </a>
-                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium text-sm whitespace-nowrap"
-                        href="#">
+                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 {% if current_tab == 'treatment' %}border-primary text-primary font-bold{% else %}border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium{% endif %} text-sm whitespace-nowrap"
+                        href="{% url 'patient_profile' patient.id %}?tab=treatment">
                         <span class="material-symbols-outlined text-lg">medical_services</span>
                         خطة العلاج
                     </a>
-                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium text-sm whitespace-nowrap"
-                        href="#">
+                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 {% if current_tab == 'visits' %}border-primary text-primary font-bold{% else %}border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium{% endif %} text-sm whitespace-nowrap"
+                        href="{% url 'patient_profile' patient.id %}?tab=visits">
                         <span class="material-symbols-outlined text-lg">history</span>
                         الزيارات السابقة
                     </a>
-                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium text-sm whitespace-nowrap"
-                        href="#">
+                    <a class="flex items-center gap-2 px-6 py-4 border-b-2 {% if current_tab == 'invoices' %}border-primary text-primary font-bold{% else %}border-transparent text-[#618689] hover:text-[#111718] dark:hover:text-white font-medium{% endif %} text-sm whitespace-nowrap"
+                        href="{% url 'patient_profile' patient.id %}?tab=invoices">
                         <span class="material-symbols-outlined text-lg">payments</span>
                         الفواتير
                     </a>
                 </div>
                 <div class="p-6">
-                    <!-- Medical Status Summary -->
+                    {% if current_tab == 'invoices' %}
+                    <!-- INVOICES TAB CONTENT -->
+                    <div class="space-y-6">
+
+                        <!-- Financial Summary Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Total Cost Card -->
+                            <div
+                                class="bg-white dark:bg-[#1a2e30] rounded-xl p-5 border border-[#f0f4f4] dark:border-[#2d4548] shadow-sm">
+                                <div class="flex items-center gap-4">
+                                    <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-2xl">receipt_long</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-[#618689] font-bold uppercase tracking-wider">إجمالي
+                                            المبلغ</p>
+                                        <p class="text-2xl font-black text-[#111718] dark:text-white mt-1">{{total_cost|floatformat:0 }} <span
+                                                class="text-sm font-medium text-[#618689]">ج.م</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Total Paid Card -->
+                            <div
+                                class="bg-white dark:bg-[#1a2e30] rounded-xl p-5 border border-green-100 dark:border-green-900/30 shadow-sm">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="size-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                        <span
+                                            class="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-[#618689] font-bold uppercase tracking-wider">المدفوع</p>
+                                        <p class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">{{total_paid|floatformat:0 }} <span
+                                                class="text-sm font-medium text-[#618689]">ج.م</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Remaining Amount Card -->
+                            <div
+                                class="bg-white dark:bg-[#1a2e30] rounded-xl p-5 border border-red-100 dark:border-red-900/30 shadow-sm">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="size-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                        <span
+                                            class="material-symbols-outlined text-red-600 dark:text-red-400 text-2xl">pending</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-[#618689] font-bold uppercase tracking-wider">المتبقي</p>
+                                        <p class="text-2xl font-black text-red-600 dark:text-red-400 mt-1">{{remaining|floatformat:0 }} <span
+                                                class="text-sm font-medium text-[#618689]">ج.م</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Invoices List Section -->
+                        <section>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold flex items-center gap-2">
+                                    <span class="w-1.5 h-6 bg-primary rounded-full"></span>
+                                    سجل الفواتير
+                                </h3>
+                                <span class="text-xs text-[#618689]">{{ invoices.count }} فاتورة</span>
+                            </div>
+
+                            {% if invoices %}
+                            <!-- Invoices Table -->
+                            <div
+                                class="overflow-hidden border border-[#f0f4f4] dark:border-[#2d4548] rounded-xl bg-white dark:bg-[#1a2e30]">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-right text-sm">
+                                        <thead
+                                            class="bg-background-light dark:bg-[#2d4548] text-[#618689] font-bold text-xs">
+                                            <tr>
+                                                <th class="p-4 whitespace-nowrap">رقم الفاتورة</th>
+                                                <th class="p-4 whitespace-nowrap">التاريخ</th>
+                                                <th class="p-4 whitespace-nowrap">الوصف</th>
+                                                <th class="p-4 whitespace-nowrap">المبلغ</th>
+                                                <th class="p-4 whitespace-nowrap">المدفوع</th>
+                                                <th class="p-4 whitespace-nowrap">المتبقي</th>
+                                                <th class="p-4 whitespace-nowrap text-center">الحالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-[#f0f4f4] dark:divide-[#2d4548]">
+                                            {% for invoice in invoices %}
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-[#2d4548]/30 transition-colors">
+                                                <td class="p-4">
+                                                    <span class="font-bold text-primary">#INV-{{ invoice.id }}</span>
+                                                </td>
+                                                <td class="p-4 text-[#618689]">{{ invoice.visit_date }}</td>
+                                                <td class="p-4 font-medium">{{ invoice.description|truncatechars:30 }}
+                                                </td>
+                                                <td class="p-4 font-bold">{{ invoice.total_cost|floatformat:0 }} ج.م
+                                                </td>
+                                                <td class="p-4 text-green-600 dark:text-green-400 font-medium">{{ invoice.total_paid|floatformat:0 }} ج.م</td>
+                                                <td
+                                                    class="p-4 {% if invoice.remaining_amount > 0 %}text-red-600 dark:text-red-400 font-bold{% else %}text-[#618689]{% endif %}">
+                                                    {{ invoice.remaining_amount|floatformat:0 }} ج.م</td>
+                                                <td class="p-4 text-center">
+                                                    {% if invoice.remaining_amount <= 0 %} <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                                                        <span
+                                                            class="material-symbols-outlined text-xs ml-1">check</span>
+                                                        مدفوعة
+                                                        </span>
+                                                        {% elif invoice.total_paid > 0 %}
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
+                                                            <span
+                                                                class="material-symbols-outlined text-xs ml-1">timelapse</span>
+                                                            مدفوعة جزئياً
+                                                        </span>
+                                                        {% else %}
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                                                            <span
+                                                                class="material-symbols-outlined text-xs ml-1">warning</span>
+                                                            غير مدفوعة
+                                                        </span>
+                                                        {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Empty State -->
+                            <div class="flex flex-col items-center justify-center py-16 px-4">
+                                <div
+                                    class="size-24 rounded-full bg-gray-100 dark:bg-[#2d4548]/30 flex items-center justify-center mb-6">
+                                    <span
+                                        class="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">receipt_long</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-[#111718] dark:text-white mb-2">لا توجد فواتير</h3>
+                                <p class="text-sm text-[#618689] text-center max-w-sm">لا توجد فواتير لهذا المريض حتى
+                                    الآن. ستظهر الفواتير هنا عند تسجيل زيارات جديدة.</p>
+                            </div>
+                            {% endif %}
+                        </section>
+                    </div>
+                    {% else %}
+                    <!-- SUMMARY TAB CONTENT (Default) -->
                     <div class="space-y-8">
                         <section>
                             <div class="flex items-center justify-between mb-4">
@@ -160,7 +306,7 @@
                             </div>
                         </div>
 
-                        <!-- X-Ray Section (Appended, not replacing) -->
+                        <!-- X-Ray Section -->
                         <section>
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base font-bold flex items-center gap-2">
@@ -197,16 +343,9 @@
                                         {% if latest_xray %}
                                         <div class="flex flex-col gap-1">
                                             <span class="text-xs font-bold text-[#618689]">ملاحظات:</span>
-                                            {% if latest_xray %}
                                             <p class="text-sm">
                                                 {{ latest_xray.notes|default:"لا توجد ملاحظات."|linebreaks }}
                                             </p>
-                                            {% else %}
-                                            <p class="text-sm text-gray-400">
-                                                لا توجد أشعة مسجلة
-                                            </p>
-                                            {% endif %}
-
                                         </div>
                                         {% endif %}
 
@@ -224,7 +363,7 @@
                             </div>
                         </section>
 
-                        <!-- Upload Modal (Simulated) -->
+                        <!-- Upload Modal -->
                         <div id="upload-xray-modal"
                             class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                             <div class="bg-white dark:bg-[#1a2e30] rounded-xl p-6 w-full max-w-md">
@@ -252,6 +391,8 @@
                                 </form>
                             </div>
                         </div>
+
+                        <!-- Recent Visits Section -->
                         <section>
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base font-bold flex items-center gap-2">
@@ -294,6 +435,7 @@
                             </div>
                         </section>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <!-- Upcoming Appointments Quick View -->
@@ -313,7 +455,7 @@
                             <span class="text-xl font-bold">{{ appointment.date|date:"d" }}</span>
                         </div>
                         <div>
-                            <p class="font-bold text-sm">مجوز</p>
+                            <p class="font-bold text-sm">محجوز</p>
                             <p class="text-xs text-[#618689] mt-1">الساعة {{ appointment.time }}</p>
                         </div>
                     </div>
