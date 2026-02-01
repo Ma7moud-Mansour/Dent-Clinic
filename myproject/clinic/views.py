@@ -522,6 +522,10 @@ def appointments_list(request):
 def add_appointment(request):
     patients = Patient.objects.all()
     
+    # Get prefill values from URL params (from available appointments calendar)
+    prefill_date = request.GET.get('date', '')
+    prefill_time = request.GET.get('time', '')
+    
     if request.method == 'POST':
         patient_name_input = request.POST.get('patient_name')
         date_str = request.POST.get('date')
@@ -564,7 +568,9 @@ def add_appointment(request):
             messages.error(request, f'Error scheduling appointment: {e}')
             
     return render(request, 'clinic/add_appointment.html', {
-        'patients': patients
+        'patients': patients,
+        'prefill_date': prefill_date,
+        'prefill_time': prefill_time,
     })
 
 @login_required
@@ -575,6 +581,208 @@ def update_appointment_status(request, id, status):
         appointment.save()
         messages.success(request, f'Appointment marked as {status}.')
     return redirect('appointments_list')
+
+# ============================================
+# AVAILABLE APPOINTMENTS FEATURE - UTILITIES
+# ============================================
+
+# Clinic Configuration
+CLINIC_START_HOUR = 9
+CLINIC_END_HOUR = 17
+SLOT_DURATION_MINUTES = 30
+# Working days: 0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 6=Sunday
+# Non-working: 4=Friday, 5=Saturday
+WORKING_DAYS = [0, 1, 2, 3, 6]
+
+def generate_time_slots():
+    """Generate all possible time slots for a working day (09:00 - 17:00, 30 min intervals)"""
+    slots = []
+    for hour in range(CLINIC_START_HOUR, CLINIC_END_HOUR):
+        slots.append(f"{hour:02d}:00")
+        slots.append(f"{hour:02d}:30")
+    return slots
+
+def get_available_slots(target_date):
+    """Get available slots for a specific date, excluding booked appointments"""
+    # Get all booked times for this date (excluding cancelled)
+    booked_times = Appointment.objects.filter(
+        date=target_date
+    ).exclude(status='cancelled').values_list('time', flat=True)
+    
+    # Convert to set of formatted strings for comparison
+    booked_set = {t.strftime('%H:%M') for t in booked_times}
+    
+    # Get all possible slots
+    all_slots = generate_time_slots()
+    
+    # Return only available slots
+    return [slot for slot in all_slots if slot not in booked_set]
+
+def get_monthly_availability(year, month):
+    """
+    Get availability count for each day in a month.
+    Returns dict: {'YYYY-MM-DD': count}
+    count = -1 for past dates, -2 for weekends, 0+ for available slots
+    """
+    from calendar import monthrange
+    
+    _, num_days = monthrange(year, month)
+    today = date.today()
+    result = {}
+    
+    for day in range(1, num_days + 1):
+        current_date = date(year, month, day)
+        date_str = str(current_date)
+        
+        # Skip past dates
+        if current_date < today:
+            result[date_str] = -1  # Past
+            continue
+        
+        # Skip non-working days (Friday=4, Saturday=5)
+        if current_date.weekday() in [4, 5]:
+            result[date_str] = -2  # Weekend/Closed
+            continue
+        
+        # Calculate available slots
+        available = get_available_slots(current_date)
+        result[date_str] = len(available)
+    
+    return result
+
+# ============================================
+# AVAILABLE APPOINTMENTS FEATURE - VIEWS
+# ============================================
+
+@login_required
+def available_appointments(request):
+    """Calendar view showing available slots per day"""
+    from calendar import monthrange
+    import json
+    
+    # Get requested month/year or default to current
+    year = int(request.GET.get('year', date.today().year))
+    month = int(request.GET.get('month', date.today().month))
+    
+    # Validate month/year
+    if month < 1:
+        month = 12
+        year -= 1
+    elif month > 12:
+        month = 1
+        year += 1
+    
+    # Calculate availability for the month
+    availability = get_monthly_availability(year, month)
+    
+    # Calculate prev/next month for navigation
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    next_month = month + 1 if month < 12 else 1
+    next_year = year if month < 12 else year + 1
+    
+    # Get first weekday and number of days in month
+    first_weekday, num_days = monthrange(year, month)
+    
+    # Arabic month names
+    arabic_months = {
+        1: 'يناير', 2: 'فبراير', 3: 'مارس', 4: 'أبريل',
+        5: 'مايو', 6: 'يونيو', 7: 'يوليو', 8: 'أغسطس',
+        9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر'
+    }
+    
+    # Build calendar grid data
+    calendar_days = []
+    
+    # Add empty cells for days before month starts
+    # Adjust for week starting on Saturday (Arabic calendar)
+    # first_weekday: 0=Mon, 6=Sun. We want Sat=0, Sun=1, etc.
+    adjusted_first = (first_weekday + 2) % 7
+    for _ in range(adjusted_first):
+        calendar_days.append({'day': None, 'date': None, 'slots': None})
+    
+    # Add actual days
+    for day in range(1, num_days + 1):
+        current_date = date(year, month, day)
+        date_str = str(current_date)
+        slots = availability.get(date_str, 0)
+        calendar_days.append({
+            'day': day,
+            'date': date_str,
+            'slots': slots,
+            'is_today': current_date == date.today(),
+            'weekday': current_date.weekday()
+        })
+    
+    context = {
+        'year': year,
+        'month': month,
+        'month_name': arabic_months.get(month, ''),
+        'availability': json.dumps(availability),
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'calendar_days': calendar_days,
+        'today': date.today(),
+        'total_slots_per_day': len(generate_time_slots()),
+    }
+    
+    return render(request, 'clinic/available_appointments.html', context)
+
+@login_required
+def available_slots_by_day(request):
+    """AJAX endpoint: Get available slots for a specific date"""
+    from django.http import JsonResponse
+    
+    date_str = request.GET.get('date')
+    if not date_str:
+        return JsonResponse({'error': 'Date required'}, status=400)
+    
+    try:
+        target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({'error': 'Invalid date format'}, status=400)
+    
+    # Validation: Past dates
+    if target_date < date.today():
+        return JsonResponse({'error': 'لا يمكن عرض التواريخ الماضية', 'slots': []}, status=400)
+    
+    # Validation: Weekends (Friday=4, Saturday=5)
+    if target_date.weekday() in [4, 5]:
+        return JsonResponse({'error': 'العيادة مغلقة في هذا اليوم', 'slots': []}, status=400)
+    
+    # Get available slots
+    available = get_available_slots(target_date)
+    all_slots = generate_time_slots()
+    
+    # Build detailed slot info
+    slots_info = []
+    for slot in all_slots:
+        slots_info.append({
+            'time': slot,
+            'available': slot in available,
+            'display': convert_to_12h(slot)
+        })
+    
+    return JsonResponse({
+        'date': date_str,
+        'available_slots': available,
+        'all_slots': slots_info,
+        'total_slots': len(all_slots),
+        'available_count': len(available),
+        'booked_count': len(all_slots) - len(available)
+    })
+
+def convert_to_12h(time_str):
+    """Convert 24h time to 12h format with Arabic AM/PM"""
+    hour, minute = map(int, time_str.split(':'))
+    period = 'ص' if hour < 12 else 'م'
+    display_hour = hour if hour <= 12 else hour - 12
+    if display_hour == 0:
+        display_hour = 12
+    return f"{display_hour}:{minute:02d} {period}"
+
 
 @login_required
 def invoices_list(request):
@@ -807,7 +1015,127 @@ def invoice_detail(request, id):
 
 @login_required
 def reports(request):
-    return render(request, 'clinic/reports.html')
+    from django.db.models import Sum, Count, F, DecimalField, ExpressionWrapper
+    from django.db.models.functions import Coalesce, TruncMonth
+    from django.utils.timezone import localdate
+    from datetime import timedelta
+    from calendar import monthrange
+    from .models import Patient, Appointment, Visit, Payment
+    
+    today = localdate()
+    
+    # Get date range from request (default: this month)
+    period = request.GET.get('period', 'month')
+    
+    if period == '3months':
+        start_date = today - timedelta(days=90)
+    elif period == 'year':
+        start_date = today.replace(month=1, day=1)
+    else:  # month
+        start_date = today.replace(day=1)
+    
+    # Previous period for comparison
+    period_days = (today - start_date).days
+    prev_start = start_date - timedelta(days=period_days)
+    prev_end = start_date - timedelta(days=1)
+    
+    # 1. Total Income (from payments in this period)
+    total_income = Payment.objects.filter(
+        payment_date__date__gte=start_date,
+        payment_date__date__lte=today
+    ).aggregate(total=Sum('paid_amount'))['total'] or 0
+    
+    # Previous period income for comparison
+    prev_income = Payment.objects.filter(
+        payment_date__date__gte=prev_start,
+        payment_date__date__lte=prev_end
+    ).aggregate(total=Sum('paid_amount'))['total'] or 0
+    
+    income_change = 0
+    if prev_income > 0:
+        income_change = round(((total_income - prev_income) / prev_income) * 100)
+    
+    # 2. New Patients this period
+    new_patients = Patient.objects.filter(
+        created_at__date__gte=start_date,
+        created_at__date__lte=today
+    ).count()
+    
+    prev_new_patients = Patient.objects.filter(
+        created_at__date__gte=prev_start,
+        created_at__date__lte=prev_end
+    ).count()
+    
+    patients_change = 0
+    if prev_new_patients > 0:
+        patients_change = round(((new_patients - prev_new_patients) / prev_new_patients) * 100)
+    
+    # 3. Completed Visits this period
+    completed_visits = Visit.objects.filter(
+        visit_date__gte=start_date,
+        visit_date__lte=today
+    ).count()
+    
+    prev_completed_visits = Visit.objects.filter(
+        visit_date__gte=prev_start,
+        visit_date__lte=prev_end
+    ).count()
+    
+    visits_change = 0
+    if prev_completed_visits > 0:
+        visits_change = round(((completed_visits - prev_completed_visits) / prev_completed_visits) * 100)
+    
+    # 4. Pending Amount (replaces satisfaction rating)
+    pending_amount = 0
+    for visit in Visit.objects.all():
+        pending_amount += visit.remaining_amount
+    
+    # 5. Monthly revenue data for chart (last 6 months)
+    six_months_ago = today - timedelta(days=180)
+    monthly_revenue = Payment.objects.filter(
+        payment_date__date__gte=six_months_ago
+    ).annotate(
+        month=TruncMonth('payment_date')
+    ).values('month').annotate(
+        total=Sum('paid_amount')
+    ).order_by('month')
+    
+    # Convert to list and calculate percentages
+    monthly_data = list(monthly_revenue)
+    max_revenue = max([m['total'] for m in monthly_data], default=1)
+    for m in monthly_data:
+        m['percentage'] = int((m['total'] / max_revenue) * 100) if max_revenue > 0 else 0
+    
+    # 6. Top services (from visit descriptions)
+    from django.db.models import Count as DjCount
+    top_services = Visit.objects.values('description').annotate(
+        count=DjCount('id')
+    ).order_by('-count')[:4]
+    
+    total_visits_count = Visit.objects.count() or 1
+    for service in top_services:
+        service['percentage'] = round((service['count'] / total_visits_count) * 100)
+    
+    # Define colors for services
+    service_colors = ['bg-primary', 'bg-purple-500', 'bg-orange-500', 'bg-gray-400']
+    for i, service in enumerate(top_services):
+        service['color'] = service_colors[i] if i < len(service_colors) else 'bg-gray-400'
+    
+    context = {
+        'period': period,
+        'start_date': start_date,
+        'total_income': total_income,
+        'income_change': income_change,
+        'new_patients': new_patients,
+        'patients_change': patients_change,
+        'completed_visits': completed_visits,
+        'visits_change': visits_change,
+        'pending_amount': pending_amount,
+        'monthly_data': monthly_data,
+        'top_services': top_services,
+    }
+    
+    return render(request, 'clinic/reports.html', context)
 
 @login_required
 def settings(request):
