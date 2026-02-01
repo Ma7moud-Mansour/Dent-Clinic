@@ -12,11 +12,26 @@
             class="bg-white dark:bg-[#1a2b2d] p-6 rounded-xl border border-[#dbe5e6] dark:border-[#2a3b3d] shadow-sm flex items-center justify-between group hover:border-primary transition-colors">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">مواعيد اليوم</p>
-                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">12</h3>
+                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">{{ todays_appointments_count }}</h3>
+                {% if yesterdays_appointments_count > 0 %}
+                {% widthratio todays_appointments_count yesterdays_appointments_count 100 as percentage %}
+                {% if todays_appointments_count >= yesterdays_appointments_count %}
                 <p class="text-[#078834] text-xs font-semibold mt-2 flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">trending_up</span>
-                    +5% مقارنة بأمس
+                    +{{ todays_appointments_count|add:"-"|add:yesterdays_appointments_count|default:"0" }} مقارنة بأمس
                 </p>
+                {% else %}
+                <p class="text-red-600 text-xs font-semibold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">trending_down</span>
+                    {{ todays_appointments_count|add:"-"|add:yesterdays_appointments_count }} مقارنة بأمس
+                </p>
+                {% endif %}
+                {% else %}
+                <p class="text-[#618689] text-xs font-semibold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">event</span>
+                    لا توجد مواعيد أمس للمقارنة
+                </p>
+                {% endif %}
             </div>
             <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <span class="material-symbols-outlined text-3xl">event_available</span>
@@ -26,12 +41,26 @@
             class="bg-white dark:bg-[#1a2b2d] p-6 rounded-xl border border-[#dbe5e6] dark:border-[#2a3b3d] shadow-sm flex items-center justify-between group hover:border-primary transition-colors">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">دخل اليوم</p>
-                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">1,500 <span
+                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">{{ todays_income|floatformat:0 }} <span
                         class="text-base font-normal">ج</span></h3>
+                {% if yesterdays_income > 0 %}
+                {% if todays_income >= yesterdays_income %}
                 <p class="text-[#078834] text-xs font-semibold mt-2 flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">trending_up</span>
-                    +12% مقارنة بأمس
+                    مقارنة بـ {{ yesterdays_income|floatformat:0 }} ج أمس
                 </p>
+                {% else %}
+                <p class="text-red-600 text-xs font-semibold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">trending_down</span>
+                    مقارنة بـ {{ yesterdays_income|floatformat:0 }} ج أمس
+                </p>
+                {% endif %}
+                {% else %}
+                <p class="text-[#618689] text-xs font-semibold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">account_balance_wallet</span>
+                    لا توجد مدفوعات أمس للمقارنة
+                </p>
+                {% endif %}
             </div>
             <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
@@ -41,11 +70,19 @@
             class="bg-white dark:bg-[#1a2b2d] p-6 rounded-xl border border-[#dbe5e6] dark:border-[#2a3b3d] shadow-sm flex items-center justify-between group hover:border-primary transition-colors">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">إجمالي المرضى</p>
-                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">1,240</h3>
+                <h3 class="text-3xl font-bold text-[#111718] dark:text-white">{{ total_patients }}</h3>
+                {% if last_month_patients > 0 %}
+                {% widthratio total_patients last_month_patients 100 as growth %}
                 <p class="text-[#078834] text-xs font-semibold mt-2 flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">trending_up</span>
-                    +2% زيادة شهرية
+                    +{{ total_patients|add:"-"|add:last_month_patients }} زيادة شهرية
                 </p>
+                {% else %}
+                <p class="text-[#078834] text-xs font-semibold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">patient_list</span>
+                    {{ total_patients }} مريض جديد
+                </p>
+                {% endif %}
             </div>
             <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <span class="material-symbols-outlined text-3xl">patient_list</span>
@@ -59,13 +96,13 @@
             class="px-6 py-5 border-b border-[#dbe5e6] dark:border-[#2a3b3d] flex flex-wrap gap-4 items-center justify-between">
             <div>
                 <h2 class="text-lg font-bold text-[#111718] dark:text-white">جدول مواعيد اليوم</h2>
-                <p class="text-sm text-[#618689] dark:text-gray-400">الاثنين، 20 مايو 2024</p>
+                <p class="text-sm text-[#618689] dark:text-gray-400">{{ today|date:"l، j F Y" }}</p>
             </div>
-            <button
+            <a href="{% url 'add_appointment' %}"
                 class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-all shadow-md shadow-primary/20">
                 <span class="material-symbols-outlined text-base">add</span>
                 موعد جديد
-            </button>
+            </a>
         </div>
         <div class="overflow-x-auto overflow-y-hidden">
             <table class="w-full text-right border-collapse">
@@ -74,120 +111,81 @@
                         <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white">الوقت</th>
                         <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white">اسم المريض</th>
                         <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white">رقم الملف</th>
-                        <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white">الإجراء الطبي</th>
+                        <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white">ملاحظات</th>
                         <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white text-center">الحالة</th>
                         <th class="px-6 py-4 text-sm font-bold text-[#111718] dark:text-white text-center">الإجراءات
                         </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#dbe5e6] dark:divide-[#2a3b3d]">
+                    {% for appointment in todays_appointments %}
                     <tr class="hover:bg-background-light/50 dark:hover:bg-primary/5 transition-colors">
-                        <td class="px-6 py-5 text-sm font-medium text-primary">09:00 ص</td>
+                        <td class="px-6 py-5 text-sm font-medium text-primary">{{ appointment.time|time:"h:i A" }}</td>
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-3">
                                 <div
                                     class="size-8 rounded-full bg-[#f0f4f4] flex items-center justify-center font-bold text-xs text-primary uppercase">
-                                    أ م</div>
-                                <span class="text-sm font-bold text-[#111718] dark:text-white">أحمد محمد الشمري</span>
+                                    {% with appointment.patient.full_name as name %}
+                                    {{ name.0 }}{{ name|slice:"1:"|truncatewords:1|slice:":1" }}
+                                    {% endwith %}
+                                </div>
+                                <a href="{% url 'patient_profile' appointment.patient.id %}"
+                                    class="text-sm font-bold text-[#111718] dark:text-white hover:text-primary">{{ appointment.patient.full_name }}</a>
                             </div>
                         </td>
-                        <td class="px-6 py-5 text-sm text-[#618689] dark:text-gray-300">#D-1029</td>
-                        <td class="px-6 py-5 text-sm text-[#111718] dark:text-white">فحص دوري</td>
+                        <td class="px-6 py-5 text-sm text-[#618689] dark:text-gray-300">#D-{{ appointment.patient.id }}
+                        </td>
+                        <td class="px-6 py-5 text-sm text-[#111718] dark:text-white">{{ appointment.notes|default:"-" }}
+                        </td>
                         <td class="px-6 py-5 text-center">
+                            {% if appointment.status == 'completed' %}
                             <span
                                 class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">تم</span>
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-                                <span class="material-symbols-outlined text-gray-500 text-xl">more_vert</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-background-light/50 dark:hover:bg-primary/5 transition-colors">
-                        <td class="px-6 py-5 text-sm font-medium text-primary">10:30 ص</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-8 rounded-full bg-[#f0f4f4] flex items-center justify-center font-bold text-xs text-primary uppercase">
-                                    س خ</div>
-                                <span class="text-sm font-bold text-[#111718] dark:text-white">سارة خالد العتيبي</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-sm text-[#618689] dark:text-gray-300">#D-1045</td>
-                        <td class="px-6 py-5 text-sm text-[#111718] dark:text-white">تبييض أسنان</td>
-                        <td class="px-6 py-5 text-center">
-                            <span
-                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">قيد
-                                الانتظار</span>
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-                                <span class="material-symbols-outlined text-gray-500 text-xl">more_vert</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-background-light/50 dark:hover:bg-primary/5 transition-colors">
-                        <td class="px-6 py-5 text-sm font-medium text-primary">11:15 ص</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-8 rounded-full bg-[#f0f4f4] flex items-center justify-center font-bold text-xs text-primary uppercase">
-                                    ف ع</div>
-                                <span class="text-sm font-bold text-[#111718] dark:text-white">فهد بن عيسى</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-sm text-[#618689] dark:text-gray-300">#D-1102</td>
-                        <td class="px-6 py-5 text-sm text-[#111718] dark:text-white">تركيب تقويم</td>
-                        <td class="px-6 py-5 text-center">
+                            {% elif appointment.status == 'cancelled' %}
                             <span
                                 class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold">ملغي</span>
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-                                <span class="material-symbols-outlined text-gray-500 text-xl">more_vert</span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-background-light/50 dark:hover:bg-primary/5 transition-colors">
-                        <td class="px-6 py-5 text-sm font-medium text-primary">12:00 م</td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="size-8 rounded-full bg-[#f0f4f4] flex items-center justify-center font-bold text-xs text-primary uppercase">
-                                    ن س</div>
-                                <span class="text-sm font-bold text-[#111718] dark:text-white">نورة السالم</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-sm text-[#618689] dark:text-gray-300">#D-1088</td>
-                        <td class="px-6 py-5 text-sm text-[#111718] dark:text-white">حشو أسنان</td>
-                        <td class="px-6 py-5 text-center">
+                            {% else %}
                             <span
                                 class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-bold">قيد
                                 الانتظار</span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-5 text-center">
-                            <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-                                <span class="material-symbols-outlined text-gray-500 text-xl">more_vert</span>
-                            </button>
+                            <div class="flex items-center justify-center gap-1">
+                                {% if appointment.status == 'scheduled' %}
+                                <a href="{% url 'create_visit' %}?appointment_id={{ appointment.id }}"
+                                    class="p-1.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors"
+                                    title="تحويل لزيارة">
+                                    <span class="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                                </a>
+                                <a href="{% url 'update_appointment_status' appointment.id 'cancelled' %}"
+                                    class="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                                    title="إلغاء">
+                                    <span class="material-symbols-outlined text-red-500 text-xl">cancel</span>
+                                </a>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-[#618689]">
+                            <span class="material-symbols-outlined text-5xl mb-3 opacity-50">event_busy</span>
+                            <p class="text-lg font-medium">لا توجد مواعيد اليوم</p>
+                            <p class="text-sm">يمكنك إضافة موعد جديد من الزر أعلاه</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% if todays_appointments %}
         <div
             class="px-6 py-4 bg-[#f8fafb] dark:bg-[#1a2b2d] border-t border-[#dbe5e6] dark:border-[#2a3b3d] flex items-center justify-between">
-            <p class="text-xs text-[#618689] dark:text-gray-400">عرض 4 من أصل 12 موعد متبقي لهذا اليوم</p>
-            <div class="flex gap-2">
-                <button
-                    class="size-8 flex items-center justify-center rounded border border-[#dbe5e6] bg-white dark:bg-[#23383a] dark:border-[#2a3b3d] text-gray-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-base">chevron_right</span>
-                </button>
-                <button
-                    class="size-8 flex items-center justify-center rounded border border-[#dbe5e6] bg-white dark:bg-[#23383a] dark:border-[#2a3b3d] text-gray-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-base">chevron_left</span>
-                </button>
-            </div>
+            <p class="text-xs text-[#618689] dark:text-gray-400">عرض {{ todays_appointments_count }} موعد لهذا اليوم</p>
+            <a href="{% url 'appointments_list' %}" class="text-primary text-xs font-bold hover:underline">عرض الكل</a>
         </div>
+        {% endif %}
     </div>
     <!-- Secondary Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
@@ -195,33 +193,28 @@
         <div class="bg-white dark:bg-[#1a2b2d] p-6 rounded-xl border border-[#dbe5e6] dark:border-[#2a3b3d] shadow-sm">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-md font-bold text-[#111718] dark:text-white">النشاط الأخير</h2>
-                <button class="text-primary text-xs font-bold hover:underline">عرض الكل</button>
+                <a href="{% url 'patients_list' %}" class="text-primary text-xs font-bold hover:underline">عرض الكل</a>
             </div>
             <div class="space-y-4">
+                {% for activity in activities %}
                 <div
                     class="flex gap-4 p-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-background-dark/50 transition-colors">
                     <div
-                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                        <span class="material-symbols-outlined text-xl">person_add</span>
+                        class="size-10 rounded-lg {% if activity.type == 'payment' %}bg-green-100 text-green-600{% else %}bg-primary/10 text-primary{% endif %} flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-xl">{{ activity.icon }}</span>
                     </div>
                     <div class="flex-grow">
-                        <p class="text-sm font-bold text-[#111718] dark:text-white">تمت إضافة مريض جديد</p>
-                        <p class="text-xs text-[#618689]">خالد عبد الله أضيف للنظام بواسطة الاستقبال</p>
-                        <p class="text-[10px] text-gray-400 mt-1">منذ 15 دقيقة</p>
+                        <p class="text-sm font-bold text-[#111718] dark:text-white">{{ activity.title }}</p>
+                        <p class="text-xs text-[#618689]">{{ activity.description }}</p>
+                        <p class="text-[10px] text-gray-400 mt-1">{{ activity.time|timesince }} مضت</p>
                     </div>
                 </div>
-                <div
-                    class="flex gap-4 p-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-background-dark/50 transition-colors">
-                    <div
-                        class="size-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600 shrink-0">
-                        <span class="material-symbols-outlined text-xl">payments</span>
-                    </div>
-                    <div class="flex-grow">
-                        <p class="text-sm font-bold text-[#111718] dark:text-white">تم استلام دفعة مالية</p>
-                        <p class="text-xs text-[#618689]">المبلغ: 300 ج - سارة خالد</p>
-                        <p class="text-[10px] text-gray-400 mt-1">منذ ساعة واحدة</p>
-                    </div>
+                {% empty %}
+                <div class="text-center py-8 text-[#618689]">
+                    <span class="material-symbols-outlined text-4xl mb-2 opacity-50">history</span>
+                    <p class="text-sm">لا توجد أنشطة حديثة</p>
                 </div>
+                {% endfor %}
             </div>
         </div>
         <!-- Quick Contact / Emergency -->

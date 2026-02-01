@@ -35,7 +35,79 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'clinic/dashboard.html')
+    from django.db.models import Sum
+    from django.utils.timezone import localdate, now
+    from datetime import timedelta
+    from .models import Patient, Appointment, Payment
+    
+    today = localdate()
+    
+    # Today's appointments
+    todays_appointments = Appointment.objects.filter(date=today).order_by('time').select_related('patient')
+    todays_appointments_count = todays_appointments.count()
+    
+    # Yesterday's appointments count for comparison
+    yesterday = today - timedelta(days=1)
+    yesterdays_appointments_count = Appointment.objects.filter(date=yesterday).count()
+    
+    # Today's income from payments
+    todays_income = Payment.objects.filter(payment_date__date=today).aggregate(total=Sum('paid_amount'))['total'] or 0
+    
+    # Yesterday's income for comparison
+    yesterdays_income = Payment.objects.filter(payment_date__date=yesterday).aggregate(total=Sum('paid_amount'))['total'] or 0
+    
+    # Total patients
+    total_patients = Patient.objects.count()
+    
+    # Last month's patient count for comparison
+    last_month = today - timedelta(days=30)
+    last_month_patients = Patient.objects.filter(created_at__date__lte=last_month).count()
+    
+    # Recent activities (last 10)
+    # 1. Recent patients added
+    recent_patients = Patient.objects.order_by('-created_at')[:5]
+    
+    # 2. Recent payments
+    recent_payments = Payment.objects.order_by('-payment_date').select_related('visit__patient', 'created_by')[:5]
+    
+    # Build activities list
+    activities = []
+    
+    for patient in recent_patients:
+        activities.append({
+            'type': 'patient',
+            'title': 'تمت إضافة مريض جديد',
+            'description': f'{patient.full_name} أضيف للنظام',
+            'time': patient.created_at,
+            'icon': 'person_add'
+        })
+    
+    for payment in recent_payments:
+        activities.append({
+            'type': 'payment',
+            'title': 'تم استلام دفعة مالية',
+            'description': f'المبلغ: {payment.paid_amount} ج - {payment.visit.patient.full_name}',
+            'time': payment.payment_date,
+            'icon': 'payments'
+        })
+    
+    # Sort activities by time
+    activities.sort(key=lambda x: x['time'], reverse=True)
+    activities = activities[:4]  # Keep only latest 4
+    
+    context = {
+        'today': today,
+        'todays_appointments': todays_appointments,
+        'todays_appointments_count': todays_appointments_count,
+        'yesterdays_appointments_count': yesterdays_appointments_count,
+        'todays_income': todays_income,
+        'yesterdays_income': yesterdays_income,
+        'total_patients': total_patients,
+        'last_month_patients': last_month_patients,
+        'activities': activities,
+    }
+    
+    return render(request, 'clinic/dashboard.html', context)
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
