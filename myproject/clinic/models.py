@@ -151,3 +151,71 @@ class DentalXRay(models.Model):
 
     def __str__(self):
         return f"X-Ray for {self.patient.full_name} ({self.created_at.date()})"
+
+class ClinicSchedule(models.Model):
+    """
+    Singleton model for clinic working hours and scheduling configuration.
+    Only ONE row should exist - use get_schedule() class method.
+    """
+    
+    # Working days stored as JSON array of weekday integers
+    # 0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday, 5=Saturday, 6=Sunday
+    working_days = models.JSONField(
+        default=list,
+        help_text="List of working days (0=Mon, 1=Tue, ..., 6=Sun)"
+    )
+    
+    start_time = models.TimeField(
+        help_text="Clinic opening time"
+    )
+    
+    end_time = models.TimeField(
+        help_text="Clinic closing time"
+    )
+    
+    slot_duration = models.PositiveIntegerField(
+        default=30,
+        help_text="Appointment slot duration in minutes"
+    )
+    
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='schedule_updates'
+    )
+    
+    class Meta:
+        verbose_name = "Clinic Schedule"
+        verbose_name_plural = "Clinic Schedule"
+    
+    def __str__(self):
+        return f"Clinic Schedule ({self.start_time} - {self.end_time})"
+    
+    @classmethod
+    def get_schedule(cls):
+        """
+        Get the single clinic schedule instance.
+        Creates a default one if none exists.
+        """
+        from datetime import time
+        
+        schedule = cls.objects.first()
+        if not schedule:
+            # Create default schedule
+            schedule = cls.objects.create(
+                working_days=[0, 1, 2, 3, 6],  # Sun-Thu (0=Mon, 6=Sun)
+                start_time=time(9, 0),
+                end_time=time(17, 0),
+                slot_duration=30
+            )
+        return schedule
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and ClinicSchedule.objects.exists():
+            existing = ClinicSchedule.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)

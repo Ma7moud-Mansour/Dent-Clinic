@@ -586,24 +586,62 @@ def update_appointment_status(request, id, status):
 # AVAILABLE APPOINTMENTS FEATURE - UTILITIES
 # ============================================
 
-# Clinic Configuration
-CLINIC_START_HOUR = 9
-CLINIC_END_HOUR = 17
-SLOT_DURATION_MINUTES = 30
-# Working days: 0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 6=Sunday
-# Non-working: 4=Friday, 5=Saturday
-WORKING_DAYS = [0, 1, 2, 3, 6]
+def get_clinic_schedule():
+    """
+    Get clinic schedule from database.
+    Falls back to safe defaults if model doesn't exist yet.
+    """
+    try:
+        from .models import ClinicSchedule
+        return ClinicSchedule.get_schedule()
+    except Exception:
+        # Fallback if migrations haven't run yet
+        from datetime import time as dt_time
+        class DefaultSchedule:
+            working_days = [0, 1, 2, 3, 6]
+            start_time = dt_time(9, 0)
+            end_time = dt_time(17, 0)
+            slot_duration = 30
+        return DefaultSchedule()
 
-def generate_time_slots():
-    """Generate all possible time slots for a working day (09:00 - 17:00, 30 min intervals)"""
+def generate_time_slots(schedule=None):
+    """
+    Generate all possible time slots for a working day based on clinic schedule.
+    Uses database settings for start_time, end_time, and slot_duration.
+    """
+    if schedule is None:
+        schedule = get_clinic_schedule()
+    
     slots = []
-    for hour in range(CLINIC_START_HOUR, CLINIC_END_HOUR):
-        slots.append(f"{hour:02d}:00")
-        slots.append(f"{hour:02d}:30")
+    start_hour = schedule.start_time.hour
+    start_minute = schedule.start_time.minute
+    end_hour = schedule.end_time.hour
+    end_minute = schedule.end_time.minute
+    duration = schedule.slot_duration
+    
+    # Calculate total minutes from start of day
+    current_minutes = start_hour * 60 + start_minute
+    end_minutes = end_hour * 60 + end_minute
+    
+    while current_minutes < end_minutes:
+        hour = current_minutes // 60
+        minute = current_minutes % 60
+        slots.append(f"{hour:02d}:{minute:02d}")
+        current_minutes += duration
+    
     return slots
 
-def get_available_slots(target_date):
+def get_working_days(schedule=None):
+    """Get working days from clinic schedule."""
+    if schedule is None:
+        schedule = get_clinic_schedule()
+    return schedule.working_days
+
+def get_available_slots(target_date, schedule=None):
     """Get available slots for a specific date, excluding booked appointments"""
+    if schedule is None:
+        schedule = get_clinic_schedule()
+    
     # Get all booked times for this date (excluding cancelled)
     booked_times = Appointment.objects.filter(
         date=target_date
@@ -613,19 +651,23 @@ def get_available_slots(target_date):
     booked_set = {t.strftime('%H:%M') for t in booked_times}
     
     # Get all possible slots
-    all_slots = generate_time_slots()
+    all_slots = generate_time_slots(schedule)
     
     # Return only available slots
     return [slot for slot in all_slots if slot not in booked_set]
 
-def get_monthly_availability(year, month):
+def get_monthly_availability(year, month, schedule=None):
     """
     Get availability count for each day in a month.
     Returns dict: {'YYYY-MM-DD': count}
-    count = -1 for past dates, -2 for weekends, 0+ for available slots
+    count = -1 for past dates, -2 for closed days, 0+ for available slots
     """
     from calendar import monthrange
     
+    if schedule is None:
+        schedule = get_clinic_schedule()
+    
+    working_days = schedule.working_days
     _, num_days = monthrange(year, month)
     today = date.today()
     result = {}
@@ -639,16 +681,17 @@ def get_monthly_availability(year, month):
             result[date_str] = -1  # Past
             continue
         
-        # Skip non-working days (Friday=4, Saturday=5)
-        if current_date.weekday() in [4, 5]:
-            result[date_str] = -2  # Weekend/Closed
+        # Skip non-working days based on schedule
+        if current_date.weekday() not in working_days:
+            result[date_str] = -2  # Closed
             continue
         
         # Calculate available slots
-        available = get_available_slots(current_date)
+        available = get_available_slots(current_date, schedule)
         result[date_str] = len(available)
     
     return result
+
 
 # ============================================
 # AVAILABLE APPOINTMENTS FEATURE - VIEWS
@@ -1176,6 +1219,79 @@ def doctor_required(view_func):
 def users_list(request):
     users = User.objects.all().order_by('username')
     return render(request, 'clinic/users_list.html', {'users': users})
+
+@login_required
+@doctor_required
+def clinic_schedule_settings(request):
+    """
+    View for doctors to manage clinic schedule settings.
+    Only accessible by users with role='doctor'.
+    """
+    from .models import ClinicSchedule
+    from datetime import time as dt_time
+    
+    # Get or create schedule
+    schedule = ClinicSchedule.get_schedule()
+    
+    if request.method == 'POST':
+        try:
+            # Get working days (checkboxes)
+            working_days = request.POST.getlist('working_days')
+            working_days = [int(d) for d in working_days]
+            
+            # Get times
+            start_time_str = request.POST.get('start_time', '09:00')
+            end_time_str = request.POST.get('end_time', '17:00')
+            
+            # Parse time strings
+            start_parts = start_time_str.split(':')
+            end_parts = end_time_str.split(':')
+            start_time = dt_time(int(start_parts[0]), int(start_parts[1]))
+            end_time = dt_time(int(end_parts[0]), int(end_parts[1]))
+            
+            # Get slot duration
+            slot_duration = int(request.POST.get('slot_duration', 30))
+            if slot_duration < 10:
+                slot_duration = 10
+            if slot_duration > 120:
+                slot_duration = 120
+            
+            # Validate times
+            if start_time >= end_time:
+                messages.error(request, 'وقت البداية يجب أن يكون قبل وقت النهاية')
+                return redirect('clinic_schedule_settings')
+            
+            # Update schedule
+            schedule.working_days = working_days
+            schedule.start_time = start_time
+            schedule.end_time = end_time
+            schedule.slot_duration = slot_duration
+            schedule.updated_by = request.user
+            schedule.save()
+            
+            messages.success(request, 'تم حفظ إعدادات مواعيد العيادة بنجاح')
+            return redirect('clinic_schedule_settings')
+            
+        except Exception as e:
+            messages.error(request, f'حدث خطأ: {e}')
+    
+    # Weekday names for template
+    weekdays = [
+        {'value': 6, 'name': 'الأحد'},
+        {'value': 0, 'name': 'الإثنين'},
+        {'value': 1, 'name': 'الثلاثاء'},
+        {'value': 2, 'name': 'الأربعاء'},
+        {'value': 3, 'name': 'الخميس'},
+        {'value': 4, 'name': 'الجمعة'},
+        {'value': 5, 'name': 'السبت'},
+    ]
+    
+    context = {
+        'schedule': schedule,
+        'weekdays': weekdays,
+    }
+    
+    return render(request, 'clinic/clinic_schedule_settings.html', context)
 
 @login_required
 @doctor_required

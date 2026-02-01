@@ -34,5 +34,7 @@ urlpatterns = [
     path('settings/users/<int:pk>/edit/', views.edit_user, name='edit_user'),
     path('settings/users/<int:pk>/delete/', views.delete_user, name='delete_user'),
     path('settings/users/<int:pk>/password/', views.change_user_password, name='change_user_password'),
+    path('settings/schedule/', views.clinic_schedule_settings, name='clinic_schedule_settings'),
 ]
+
 
