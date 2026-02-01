@@ -91,6 +91,14 @@ class Visit(models.Model):
     notes = models.TextField(blank=True, null=True)
     total_cost = models.DecimalField(max_digits=10, decimal_places=2)
 
+    created_by = models.ForeignKey(
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    related_name='created_visits'
+    )
+
+
     def __str__(self):
         return f"Visit - {self.patient.full_name} ({self.visit_date})"
 
@@ -119,6 +127,14 @@ class Payment(models.Model):
         choices=PAYMENT_METHODS
     )
     payment_date = models.DateTimeField(auto_now_add=True)
+
+    created_by = models.ForeignKey(
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    related_name='created_payments'
+    )
+
 
     def __str__(self):
         return f"{self.paid_amount} - {self.payment_method}"

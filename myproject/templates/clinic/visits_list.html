@@ -203,21 +203,21 @@
                             </a>
                         </td>
                         <td class="px-5 py-4 text-gray-600 dark:text-gray-400 text-sm">{{ visit.description|default:"-"|truncatewords:8 }}</td>
-                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">{{ visit.total_cost }} ر.س</td>
-                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">{{ visit.total_paid }} ر.س</td>
+                        <td class="px-5 py-4 font-semibold text-[#111718] dark:text-white text-sm">{{ visit.total_cost }} ج</td>
+                        <td class="px-5 py-4 text-gray-600 dark:text-gray-300 text-sm">{{ visit.total_paid }} ج</td>
                         <td class="px-5 py-4">
                             {% if visit.remaining_amount <= 0 %} <!-- Remaining=0 → Green -->
                                 <span
                                     class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-xs font-bold">
                                     <span class="material-symbols-outlined text-sm">check</span>
-                                    {{ visit.remaining_amount }} ر.س
+                                    {{ visit.remaining_amount }} ج
                                 </span>
                                 {% else %}
                                 <!-- Remaining > 0 → Orange -->
                                 <span
                                     class="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full text-xs font-bold">
                                     <span class="material-symbols-outlined text-sm">schedule</span>
-                                    {{ visit.remaining_amount }} ر.س
+                                    {{ visit.remaining_amount }} ج
                                 </span>
                                 {% endif %}
                         </td>
@@ -276,14 +276,14 @@
                 {% for num in page_obj.paginator.page_range %}
                 {% if num == page_obj.number %}
                 <button
-                    class="text-sm font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-sm">{{ num }}</button>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a
+                    class="text-sm font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-sm">{{
+                    num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a
                     href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
                     class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
                     {{ num }}</a>
-                {% endif %}
-                {% endfor %}
+                    {% endif %}
+                    {% endfor %}
 
                     {% if page_obj.has_next %}
                     <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
@@ -309,7 +309,13 @@
             <span class="material-symbols-outlined text-4xl text-gray-400">event_busy</span>
         </div>
         <h3 class="text-xl font-bold text-[#111718] dark:text-white mb-2">لا توجد زيارات مسجلة حتى الآن</h3>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">{% if search_query or date_from or date_to or status_filter %}لم يتم العثور على زيارات تطابق معايير البحث. جرّب تغيير الفلاتر أو مسحها.{% else %}عند تسجيل زيارات للمرضى، ستظهر هنا في هذه القائمة.{% endif %}</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">
+            {% if search_query or date_from or date_to or status_filter %}
+            لم يتم العثور على زيارات تطابق معايير البحث. جرّب تغيير الفلاتر أو مسحها.
+            {% else %}
+            عند تسجيل زيارات للمرضى، ستظهر هنا في هذه القائمة.
+            {% endif %}
+        </p>
         {% if search_query or date_from or date_to or status_filter %}
         <a href="{% url 'visits_list' %}"
             class="px-5 py-2.5 text-primary hover:bg-primary/10 rounded-lg font-medium transition-all text-sm inline-flex items-center gap-2 mx-auto">

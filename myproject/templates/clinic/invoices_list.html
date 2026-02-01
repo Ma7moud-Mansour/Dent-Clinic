@@ -25,8 +25,8 @@
             class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">إجمالي المدفوعات (اليوم)</p>
-                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">4,250 <span
-                        class="text-sm font-normal">ر.س</span></h3>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">{{ todays_payments }} <span
+                        class="text-sm font-normal">ج</span></h3>
             </div>
             <div
                 class="size-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
@@ -37,8 +37,8 @@
             class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">فواتير معلقة</p>
-                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">1,800 <span
-                        class="text-sm font-normal">ر.س</span></h3>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">{{ pending_amount }} <span
+                        class="text-sm font-normal">ج</span></h3>
             </div>
             <div
                 class="size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
@@ -49,8 +49,8 @@
             class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-[#618689] dark:text-gray-400 text-sm font-medium mb-1">إجمالي الفواتير (الشهر)</p>
-                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">45,200 <span
-                        class="text-sm font-normal">ر.س</span></h3>
+                <h3 class="text-2xl font-bold text-[#111718] dark:text-white">{{ monthly_total }} <span
+                        class="text-sm font-normal">ج</span></h3>
             </div>
             <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <span class="material-symbols-outlined">receipt_long</span>
@@ -58,19 +58,89 @@
         </div>
     </div>
 
+    <!-- Filters Section (Hidden by default) -->
+    <div id="filtersSection"
+        class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 mb-6 hidden">
+        <form method="GET" action="{% url 'invoices_list' %}" class="flex flex-col xl:flex-row gap-4">
+
+            <!-- Date Preset -->
+            <div class="w-full xl:w-36">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">فترة سريعة</label>
+                <select name="date_preset"
+                    class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm">
+                    <option value="">اختر...</option>
+                    <option value="today" {% if date_preset == 'today' %}selected{% endif %}>اليوم</option>
+                    <option value="month" {% if date_preset == 'month' %}selected{% endif %}>هذا الشهر</option>
+                </select>
+            </div>
+
+            <!-- Date From -->
+            <div class="w-full xl:w-36">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">من تاريخ</label>
+                <input type="date" name="date_from" value="{{ date_from }}"
+                    class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm" />
+            </div>
+
+            <!-- Date To -->
+            <div class="w-full xl:w-36">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">إلى تاريخ</label>
+                <input type="date" name="date_to" value="{{ date_to }}"
+                    class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm" />
+            </div>
+
+            <!-- Status Filter -->
+            <div class="w-full xl:w-36">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حالة الدفع</label>
+                <select name="status"
+                    class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e3436] text-[#111718] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm">
+                    <option value="" {% if not status_filter %}selected{% endif %}>الكل</option>
+                    <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>مدفوع</option>
+                    <option value="unpaid" {% if status_filter == 'unpaid' %}selected{% endif %}>غير مدفوع</option>
+                    <option value="partial" {% if status_filter == 'partial' %}selected{% endif %}>مدفوع جزئياً</option>
+                </select>
+            </div>
+
+            <!-- Filter Actions -->
+            <div class="flex items-end gap-2">
+                <button type="submit"
+                    class="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-md shadow-primary/20 text-sm">
+                    <span class="material-symbols-outlined text-lg">filter_alt</span>
+                    <span>تصفية</span>
+                </button>
+                {% if date_from or date_to or status_filter or date_preset %}
+                <a href="{% url 'invoices_list' %}"
+                    class="px-4 py-2.5 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg font-medium transition-all text-sm flex items-center gap-1">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                    مسح
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
     <!-- Data Table -->
     <div
         class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-            <h2 class="font-bold text-lg text-[#111718] dark:text-white">أحدث الفواتير</h2>
+            <h2 class="font-bold text-lg text-[#111718] dark:text-white">الفواتير {% if page_obj %}<span
+                    class="text-sm text-gray-500 font-normal">({{ page_obj.paginator.count }})</span>{% endif %}</h2>
             <div class="flex gap-2">
-                <button
-                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg">filter_list</span> فلترة
+                <!-- Filter Toggle Button -->
+                <button type="button" id="toggleFiltersBtn" onclick="toggleFilters()"
+                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/10">
+                    <span class="material-symbols-outlined text-lg">filter_list</span>
+                    <span>فلترة</span>
+                    {% if date_from or date_to or status_filter or date_preset %}
+                    <span class="size-2 bg-primary rounded-full"></span>
+                    {% endif %}
                 </button>
-                <button
-                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg">download</span> تصدير
+                <a href="?{{ request.GET.urlencode }}&export=excel"
+                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-green-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20">
+                    <span class="material-symbols-outlined text-lg">table_chart</span> Excel
+                </a>
+                <button onclick="window.print()"
+                    class="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/10">
+                    <span class="material-symbols-outlined text-lg">print</span> طباعة
                 </button>
             </div>
         </div>
@@ -83,6 +153,9 @@
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">التاريخ</th>
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">المبلغ</th>
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الحالة</th>
+                        {% if request.user.role == 'doctor' %}
+                        <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">تم الإنشاء بواسطة</th>
+                        {% endif %}
                         <th class="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">الإجراءات
                         </th>
                     </tr>
@@ -94,7 +167,7 @@
                         <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ visit.patient.full_name }}
                         </td>
                         <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">{{ visit.visit_date }}</td>
-                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ر.س</td>
+                        <td class="px-6 py-5 font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ج</td>
                         <td class="px-6 py-5 text-center">
                             {% if visit.remaining_amount <= 0 %} <span
                                 class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold">
@@ -109,6 +182,15 @@
                                     مدفوع</span>
                                 {% endif %}
                         </td>
+                        {% if request.user.role == 'doctor' %}
+                        <td class="px-6 py-5 text-gray-600 dark:text-gray-400 text-sm">
+                            {% if visit.created_by %}
+                            {{ visit.created_by.get_full_name|default:visit.created_by.username }}
+                            {% else %}
+                            <span class="text-gray-400">غير محدد</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{% url 'invoice_detail' visit.id %}"
@@ -135,7 +217,8 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                        <td colspan="{% if request.user.role == 'doctor' %}7{% else %}6{% endif %}"
+                            class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
                             لا توجد فواتير مسجلة حالياً
                         </td>
                     </tr>
@@ -143,6 +226,72 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div
+            class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-gray-100 dark:border-gray-800">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                عرض <span class="font-bold text-[#111718] dark:text-white">{{ page_obj.start_index }}-{{
+                    page_obj.end_index }}</span> من <span class="font-bold text-[#111718] dark:text-white">{{
+                    page_obj.paginator.count }}</span> فاتورة
+            </div>
+            <div class="flex items-center gap-1">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_preset %}&date_preset={{ date_preset }}{% endif %}"
+                    class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </a>
+                {% else %}
+                <button
+                    class="flex size-9 items-center justify-center rounded-lg text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                    disabled>
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                <button
+                    class="text-sm font-bold flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-sm">{{
+                    num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a
+                    href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_preset %}&date_preset={{ date_preset }}{% endif %}"
+                    class="text-sm font-normal flex size-9 items-center justify-center text-[#111718] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    {{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_preset %}&date_preset={{ date_preset }}{% endif %}"
+                        class="flex size-9 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </a>
+                    {% else %}
+                    <button
+                        class="flex size-9 items-center justify-center rounded-lg text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                        disabled>
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </button>
+                    {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<script>
+    function toggleFilters() {
+        const filtersSection = document.getElementById('filtersSection');
+        filtersSection.classList.toggle('hidden');
+    }
+
+    // Auto-show filters if any filter is active
+    document.addEventListener('DOMContentLoaded', function () {
+        const hasActiveFilters = {% if date_from or date_to or status_filter or date_preset %}true{% else %}false{% endif %};
+    if (hasActiveFilters) {
+        document.getElementById('filtersSection').classList.remove('hidden');
+    }
+});
+</script>
 {% endblock %}

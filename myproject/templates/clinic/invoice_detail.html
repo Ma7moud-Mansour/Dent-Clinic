@@ -9,16 +9,17 @@
     <div class="w-full max-w-[800px] flex flex-col gap-6">
         <!-- Actions -->
         <div class="flex justify-end gap-2 print:hidden">
-            <button
+            <button onclick="window.print()"
                 class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-[#1a2e30] border border-gray-200 dark:border-gray-700 text-[#111718] dark:text-white font-bold hover:bg-gray-50 dark:hover:bg-[#23383a] transition-colors">
                 <span class="material-symbols-outlined">print</span>
                 <span>طباعة</span>
             </button>
-            <button
-                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-bold hover:brightness-105 transition-colors shadow-md shadow-primary/20">
+            <a href="https://wa.me/{{ visit.patient.phone|cut:' ' }}?text=مرحباً {{ visit.patient.full_name }}،%0Aفاتورتك رقم %23INV-{{ visit.id }}%0Aالمبلغ الإجمالي: {{ visit.total_cost }} ج%0Aالمدفوع: {{ visit.total_paid }} ج%0Aالمتبقي: {{ visit.remaining_amount }} ج%0Aشكراً لتعاملكم معنا."
+                target="_blank"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white font-bold hover:brightness-105 transition-colors shadow-md shadow-green-600/20">
                 <span class="material-symbols-outlined">send</span>
-                <span>إسال للمريض</span>
-            </button>
+                <span>إرسال للمريض (واتساب)</span>
+            </a>
         </div>
 
         <!-- Invoice Paper -->
@@ -52,6 +53,16 @@
                     <p class="text-lg font-bold text-[#111718] dark:text-white">{{ visit.patient.full_name }}</p>
                     <p class="text-sm text-gray-500">{{ visit.patient.phone }}</p>
                 </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">تم الإنشاء بواسطة</h3>
+                    {% if visit.created_by %}
+                    <p class="text-lg font-bold text-[#111718] dark:text-white">{{
+                        visit.created_by.get_full_name|default:visit.created_by.username }}</p>
+                    <p class="text-sm text-gray-500">{{ visit.created_by.role }}</p>
+                    {% else %}
+                    <p class="text-lg font-bold text-gray-400">غير محدد</p>
+                    {% endif %}
+                </div>
                 <div class="flex flex-col gap-1 text-left">
                     <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">تفاصيل الدفع</h3>
                     <div class="flex justify-between gap-8">
@@ -83,7 +94,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     <tr>
                         <td class="py-4 text-gray-600 dark:text-gray-300">{{ visit.description }}</td>
-                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ر.س
+                        <td class="py-4 text-left font-bold text-[#111718] dark:text-white">{{ visit.total_cost }} ج
                         </td>
                     </tr>
                 </tbody>
@@ -94,18 +105,18 @@
                 <div class="w-full md:w-1/2 flex flex-col gap-3">
                     <div class="flex justify-between items-center">
                         <span class="text-lg font-black text-[#111718] dark:text-white">الإجمالي المستحق</span>
-                        <span class="text-2xl font-black text-primary">{{ visit.total_cost }} ر.س</span>
+                        <span class="text-2xl font-black text-primary">{{ visit.total_cost }} ج</span>
                     </div>
                     {% if visit.total_paid > 0 %}
                     <div class="flex justify-between items-center text-green-600">
                         <span class="font-bold">المدفوع</span>
-                        <span class="font-bold">{{ visit.total_paid }} ر.س</span>
+                        <span class="font-bold">{{ visit.total_paid }} ج</span>
                     </div>
                     {% endif %}
                     {% if visit.remaining_amount > 0 %}
                     <div class="flex justify-between items-center text-red-600">
                         <span class="font-bold">المتبقي</span>
-                        <span class="font-bold">{{ visit.remaining_amount }} ر.س</span>
+                        <span class="font-bold">{{ visit.remaining_amount }} ج</span>
                     </div>
                     {% endif %}
                 </div>

@@ -304,7 +304,8 @@ def add_visit(request):
                     visit_date=visit_date,
                     description=description,
                     total_cost=total_cost,
-                    notes=notes
+                    notes=notes,
+                    created_by=request.user
                 )
                 
                 # Handle payment if provided
@@ -316,7 +317,8 @@ def add_visit(request):
                     Payment.objects.create(
                         visit=visit,
                         paid_amount=payment_amount,
-                        payment_method=payment_method
+                        payment_method=payment_method,
+                        created_by=request.user
                     )
                 
                 messages.success(request, 'تم تسجيل الزيارة بنجاح.')
@@ -378,7 +380,8 @@ def create_visit(request):
                     visit_date=visit_date,
                     description=description,
                     total_cost=total_cost,
-                    notes=notes
+                    notes=notes,
+                    created_by=request.user
                 )
                 
                 # Mark appointment as completed
@@ -395,7 +398,8 @@ def create_visit(request):
                     Payment.objects.create(
                         visit=visit,
                         paid_amount=payment_amount,
-                        payment_method=payment_method
+                        payment_method=payment_method,
+                        created_by=request.user
                     )
                 
                 messages.success(request, 'تم تسجيل الزيارة بنجاح وتحديث حالة الموعد.')
@@ -500,8 +504,107 @@ def update_appointment_status(request, id, status):
 
 @login_required
 def invoices_list(request):
-    visits = Visit.objects.all().order_by('-visit_date')
-    return render(request, 'clinic/invoices_list.html', {'visits': visits})
+    from django.db.models import Sum, F, DecimalField, ExpressionWrapper
+    from django.db.models.functions import Coalesce
+    from django.utils.timezone import localdate
+    from django.core.paginator import Paginator
+    
+    today = localdate()
+
+    # Get filter parameters
+    search_query = request.GET.get('q', '').strip()
+    date_from = request.GET.get('date_from', '').strip()
+    date_to = request.GET.get('date_to', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    date_preset = request.GET.get('date_preset', '').strip()
+    
+    # Apply date preset
+    if date_preset == 'today':
+        date_from = str(today)
+        date_to = str(today)
+    elif date_preset == 'month':
+        from datetime import date as dt_date
+        date_from = str(dt_date(today.year, today.month, 1))
+        date_to = str(today)
+    
+    # Get visits ordered by date
+    visits = Visit.objects.all().order_by('-visit_date').select_related('patient', 'created_by')
+    
+    # Apply search filter
+    if search_query:
+        visits = visits.filter(
+            Q(patient__full_name__icontains=search_query) |
+            Q(patient__phone__icontains=search_query)
+        )
+    
+    # Apply date filters
+    if date_from:
+        visits = visits.filter(visit_date__gte=date_from)
+    if date_to:
+        visits = visits.filter(visit_date__lte=date_to)
+
+    # 1️⃣ Today's payments
+    todays_payments = (
+        Payment.objects
+        .filter(payment_date__date=today)
+        .aggregate(total=Sum('paid_amount'))
+    )['total'] or 0
+
+    # 2️⃣ Pending amount
+    pending_amount = (
+        Visit.objects
+        .annotate(
+            paid=Coalesce(Sum('payments__paid_amount'), 0)
+        )
+        .annotate(
+            remaining=ExpressionWrapper(
+                F('total_cost') - F('paid'),
+                output_field=DecimalField()
+            )
+        )
+        .filter(remaining__gt=0)
+        .aggregate(total=Sum('remaining'))
+    )['total'] or 0
+
+    # 3️⃣ Monthly total invoices
+    monthly_total = (
+        Visit.objects
+        .filter(
+            visit_date__year=today.year,
+            visit_date__month=today.month
+        )
+        .aggregate(total=Sum('total_cost'))
+    )['total'] or 0
+    
+    # Convert to list for status filtering (since remaining_amount is a property)
+    visits_list_all = list(visits)
+    
+    # Apply status filter
+    if status_filter == 'paid':
+        visits_list_all = [v for v in visits_list_all if v.remaining_amount <= 0]
+    elif status_filter == 'unpaid':
+        visits_list_all = [v for v in visits_list_all if v.remaining_amount > 0]
+    elif status_filter == 'partial':
+        visits_list_all = [v for v in visits_list_all if v.remaining_amount > 0 and v.total_paid > 0]
+    
+    # Pagination
+    paginator = Paginator(visits_list_all, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'visits': page_obj,
+        'page_obj': page_obj,
+        'todays_payments': todays_payments,
+        'pending_amount': pending_amount,
+        'monthly_total': monthly_total,
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+        'status_filter': status_filter,
+        'date_preset': date_preset,
+    }
+    return render(request, 'clinic/invoices_list.html', context)
 
 
 
@@ -625,7 +728,8 @@ def delete_invoice(request, id):
 
 @login_required
 def invoice_detail(request, id):
-    return render(request, 'clinic/invoice_detail.html')
+    visit = get_object_or_404(Visit, id=id)
+    return render(request, 'clinic/invoice_detail.html', {'visit': visit})
 
 @login_required
 def reports(request):
