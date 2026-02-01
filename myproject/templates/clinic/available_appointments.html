@@ -1,0 +1,261 @@
+{% extends 'clinic/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}المواعيد المتاحة - نظام إدارة عيادة الأسنان{% endblock %}
+{% block header_title %}المواعيد{% endblock %}
+
+{% block page_content %}
+<div class="max-w-[1200px] mx-auto px-4 sm:px-10 md:px-20 lg:px-40 py-8">
+    <!-- Page Heading -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-[#111718] dark:text-white text-4xl font-black leading-tight">جدول المواعيد</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">عرض المواعيد المتاحة للحجز</p>
+        </div>
+        <a href="{% url 'add_appointment' %}"
+            class="flex min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold hover:brightness-105 transition-all shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined text-lg">add</span>
+            <span>حجز موعد جديد</span>
+        </a>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex gap-2 mb-6">
+        <a href="{% url 'appointments_list' %}"
+            class="px-6 py-3 rounded-lg text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white">
+            <span class="material-symbols-outlined text-base align-middle ml-1">event_note</span>
+            المواعيد المحجوزة
+        </a>
+        <a href="{% url 'available_appointments' %}"
+            class="px-6 py-3 rounded-lg text-sm font-bold transition-colors bg-primary text-white shadow-md shadow-primary/20">
+            <span class="material-symbols-outlined text-base align-middle ml-1">calendar_month</span>
+            المواعيد المتاحة
+        </a>
+    </div>
+
+    <!-- Calendar Header -->
+    <div
+        class="bg-white dark:bg-[#1a2e30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <a href="?year={{ prev_year }}&month={{ prev_month }}"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+            <h2 class="text-xl font-bold text-[#111718] dark:text-white">{{ month_name }} {{ year }}</h2>
+            <a href="?year={{ next_year }}&month={{ next_month }}"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </a>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="p-4">
+            <!-- Day Headers -->
+            <div class="grid grid-cols-7 gap-2 mb-2">
+                <div class="text-center text-xs font-bold text-gray-500 py-2">السبت</div>
+                <div class="text-center text-xs font-bold text-gray-500 py-2">الأحد</div>
+                <div class="text-center text-xs font-bold text-gray-500 py-2">الإثنين</div>
+                <div class="text-center text-xs font-bold text-gray-500 py-2">الثلاثاء</div>
+                <div class="text-center text-xs font-bold text-gray-500 py-2">الأربعاء</div>
+                <div class="text-center text-xs font-bold text-gray-500 py-2">الخميس</div>
+                <div class="text-center text-xs font-bold text-red-400 py-2">الجمعة</div>
+            </div>
+
+            <!-- Calendar Days -->
+            <div class="grid grid-cols-7 gap-2">
+                {% for day_info in calendar_days %}
+                {% if day_info.day %}
+                {% if day_info.slots == -1 %}
+                <!-- Past Day -->
+                <div class="aspect-square p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 opacity-50 cursor-not-allowed">
+                    <div class="text-sm font-medium text-gray-400">{{ day_info.day }}</div>
+                    <div class="text-[10px] text-gray-400 mt-1">ماضي</div>
+                </div>
+                {% elif day_info.slots == -2 %}
+                <!-- Weekend/Closed -->
+                <div class="aspect-square p-2 rounded-lg bg-red-50 dark:bg-red-900/20 cursor-not-allowed">
+                    <div class="text-sm font-medium text-red-400">{{ day_info.day }}</div>
+                    <div class="text-[10px] text-red-400 mt-1">مغلق</div>
+                </div>
+                {% elif day_info.slots == 0 %}
+                <!-- Fully Booked -->
+                <div class="aspect-square p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 cursor-not-allowed">
+                    <div class="text-sm font-medium text-orange-600 dark:text-orange-400">{{ day_info.day }}</div>
+                    <div class="text-[10px] text-orange-500 mt-1">مكتمل</div>
+                </div>
+                {% else %}
+                <!-- Available -->
+                <button type="button" onclick="openSlotModal('{{ day_info.date }}', {{ day_info.day }})"
+                    class="aspect-square p-2 rounded-lg bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors cursor-pointer text-right {% if day_info.is_today %}ring-2 ring-primary{% endif %}">
+                    <div class="text-sm font-bold text-green-700 dark:text-green-400">{{ day_info.day }}</div>
+                    <div class="text-[10px] text-green-600 dark:text-green-500 mt-1">متاح ({{ day_info.slots }})</div>
+                </button>
+                {% endif %}
+                {% else %}
+                <!-- Empty Cell -->
+                <div class="aspect-square"></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-4 text-xs">
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-green-100 dark:bg-green-900/30"></div>
+                <span class="text-gray-600 dark:text-gray-400">متاح للحجز</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-orange-100 dark:bg-orange-900/30"></div>
+                <span class="text-gray-600 dark:text-gray-400">مكتمل الحجز</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-red-100 dark:bg-red-900/30"></div>
+                <span class="text-gray-600 dark:text-gray-400">العيادة مغلقة</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800"></div>
+                <span class="text-gray-600 dark:text-gray-400">تاريخ ماضي</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slot Modal -->
+<div id="slotModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#1a2e30] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <h3 class="font-bold text-lg text-[#111718] dark:text-white">
+                <span class="material-symbols-outlined text-primary align-middle ml-1">schedule</span>
+                المواعيد المتاحة - يوم <span id="modalDayNumber"></span>
+            </h3>
+            <button onclick="closeSlotModal()"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 overflow-y-auto max-h-[60vh]">
+            <div id="slotsLoading" class="text-center py-8">
+                <div class="inline-flex items-center gap-2 text-gray-500">
+                    <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                            fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    <span>جاري تحميل المواعيد...</span>
+                </div>
+            </div>
+            <div id="slotsError" class="hidden text-center py-8 text-red-500">
+                <span class="material-symbols-outlined text-4xl mb-2">error</span>
+                <p id="slotsErrorMessage"></p>
+            </div>
+            <div id="slotsContainer" class="hidden">
+                <p class="text-sm text-gray-500 mb-4">
+                    عدد المواعيد المتاحة: <span id="availableCount" class="font-bold text-green-600"></span>
+                    من أصل <span id="totalCount" class="font-bold"></span>
+                </p>
+                <div id="slotsGrid" class="grid grid-cols-3 gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#162426]">
+            <p class="text-xs text-gray-500 text-center">
+                اضغط على موعد متاح لحجزه
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedDate = null;
+
+    function openSlotModal(date, dayNumber) {
+        selectedDate = date;
+        document.getElementById('modalDayNumber').textContent = dayNumber;
+        document.getElementById('slotModal').classList.remove('hidden');
+        document.getElementById('slotModal').classList.add('flex');
+
+        // Reset state
+        document.getElementById('slotsLoading').classList.remove('hidden');
+        document.getElementById('slotsError').classList.add('hidden');
+        document.getElementById('slotsContainer').classList.add('hidden');
+
+        // Fetch slots
+        fetchSlots(date);
+    }
+
+    function closeSlotModal() {
+        document.getElementById('slotModal').classList.add('hidden');
+        document.getElementById('slotModal').classList.remove('flex');
+        selectedDate = null;
+    }
+
+    function fetchSlots(date) {
+        fetch(`{% url 'available_slots_by_day' %}?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('slotsLoading').classList.add('hidden');
+
+                if (data.error) {
+                    document.getElementById('slotsError').classList.remove('hidden');
+                    document.getElementById('slotsErrorMessage').textContent = data.error;
+                    return;
+                }
+
+                document.getElementById('slotsContainer').classList.remove('hidden');
+                document.getElementById('availableCount').textContent = data.available_count;
+                document.getElementById('totalCount').textContent = data.total_slots;
+
+                const grid = document.getElementById('slotsGrid');
+                grid.innerHTML = '';
+
+                data.all_slots.forEach(slot => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+
+                    if (slot.available) {
+                        btn.className = 'px-3 py-2 rounded-lg text-sm font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors';
+                        btn.onclick = () => selectSlot(slot.time, slot.display);
+                    } else {
+                        btn.className = 'px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed line-through';
+                        btn.disabled = true;
+                    }
+
+                    btn.textContent = slot.display;
+                    grid.appendChild(btn);
+                });
+            })
+            .catch(error => {
+                document.getElementById('slotsLoading').classList.add('hidden');
+                document.getElementById('slotsError').classList.remove('hidden');
+                document.getElementById('slotsErrorMessage').textContent = 'حدث خطأ في تحميل المواعيد';
+            });
+    }
+
+    function selectSlot(time, display) {
+        // Redirect to add appointment with pre-filled date and time
+        const url = `{% url 'add_appointment' %}?date=${selectedDate}&time=${time}`;
+        window.location.href = url;
+    }
+
+    // Close modal on outside click
+    document.getElementById('slotModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeSlotModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeSlotModal();
+        }
+    });
+</script>
+{% endblock %}

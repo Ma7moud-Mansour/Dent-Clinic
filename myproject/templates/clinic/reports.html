@@ -20,16 +20,15 @@
             <span class="font-bold text-[#111718] dark:text-white text-sm">الفترة الزمنية:</span>
         </div>
         <div class="flex flex-wrap gap-2">
-            <button class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-md shadow-primary/20">هذا
-                الشهر</button>
-            <button
-                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">آخر
-                3 أشهر</button>
-            <button
-                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">هذا
-                العام</button>
-            <button
-                class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white text-sm font-medium transition-colors">مخصص</button>
+            <a href="?period=month"
+                class="px-4 py-2 rounded-lg {% if period == 'month' %}bg-primary text-white shadow-md shadow-primary/20{% else %}hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white{% endif %} text-sm font-bold transition-colors">هذا
+                الشهر</a>
+            <a href="?period=3months"
+                class="px-4 py-2 rounded-lg {% if period == '3months' %}bg-primary text-white shadow-md shadow-primary/20{% else %}hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white{% endif %} text-sm font-medium transition-colors">آخر
+                3 أشهر</a>
+            <a href="?period=year"
+                class="px-4 py-2 rounded-lg {% if period == 'year' %}bg-primary text-white shadow-md shadow-primary/20{% else %}hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111718] dark:text-white{% endif %} text-sm font-medium transition-colors">هذا
+                العام</a>
         </div>
     </div>
 
@@ -37,138 +36,147 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">إجمالي الدخل</p>
-            <h3 class="text-2xl font-black text-[#111718] dark:text-white">124,500 <span
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">{{ total_income|floatformat:0 }} <span
                     class="text-sm font-normal text-gray-500">ج</span></h3>
+            {% if income_change > 0 %}
             <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">trending_up</span>
-                +15% زيادة
+                +{{ income_change }}% زيادة
             </p>
+            {% elif income_change < 0 %} <p class="text-red-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_down</span>
+                {{ income_change }}% انخفاض
+                </p>
+                {% else %}
+                <p class="text-gray-400 text-xs font-bold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">remove</span>
+                    0% تغيير
+                </p>
+                {% endif %}
         </div>
         <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">عدد المرضى الجدد</p>
-            <h3 class="text-2xl font-black text-[#111718] dark:text-white">45 <span
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">{{ new_patients }} <span
                     class="text-sm font-normal text-gray-500">مريض</span></h3>
+            {% if patients_change > 0 %}
             <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">trending_up</span>
-                +5% زيادة
+                +{{ patients_change }}% زيادة
             </p>
+            {% elif patients_change < 0 %} <p class="text-red-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_down</span>
+                {{ patients_change }}% انخفاض
+                </p>
+                {% else %}
+                <p class="text-gray-400 text-xs font-bold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">remove</span>
+                    0% تغيير
+                </p>
+                {% endif %}
         </div>
         <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">المواعيد المكتملة</p>
-            <h3 class="text-2xl font-black text-[#111718] dark:text-white">320 <span
-                    class="text-sm font-normal text-gray-500">موعد</span></h3>
-            <p class="text-gray-400 text-xs font-bold mt-2 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">remove</span>
-                0% تغيير
-            </p>
-        </div>
-        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">متوسط الرضا</p>
-            <h3 class="text-2xl font-black text-[#111718] dark:text-white">4.8 <span
-                    class="text-sm font-normal text-gray-500">/ 5</span></h3>
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">الزيارات المكتملة</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">{{ completed_visits }} <span
+                    class="text-sm font-normal text-gray-500">زيارة</span></h3>
+            {% if visits_change > 0 %}
             <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">star</span>
-                ممتاز
+                <span class="material-symbols-outlined text-sm">trending_up</span>
+                +{{ visits_change }}% زيادة
             </p>
+            {% elif visits_change < 0 %} <p class="text-red-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_down</span>
+                {{ visits_change }}% انخفاض
+                </p>
+                {% else %}
+                <p class="text-gray-400 text-xs font-bold mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">remove</span>
+                    0% تغيير
+                </p>
+                {% endif %}
+        </div>
+        <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mb-2">المبالغ المستحقة</p>
+            <h3 class="text-2xl font-black text-[#111718] dark:text-white">{{ pending_amount|floatformat:0 }} <span
+                    class="text-sm font-normal text-gray-500">ج</span></h3>
+            {% if pending_amount > 0 %}
+            <p class="text-orange-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">warning</span>
+                بحاجة للتحصيل
+            </p>
+            {% else %}
+            <p class="text-green-600 text-xs font-bold mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">check_circle</span>
+                لا توجد مستحقات
+            </p>
+            {% endif %}
         </div>
     </div>
 
     <!-- Charts / Detailed Sections -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Revenue Chart Placeholder -->
+        <!-- Revenue Chart -->
         <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-lg text-[#111718] dark:text-white">تحليل الإيرادات</h3>
-                <button class="text-primary text-sm font-bold hover:underline">تحميل التقرير</button>
+                <a href="{% url 'invoices_list' %}" class="text-primary text-sm font-bold hover:underline">عرض
+                    الفواتير</a>
             </div>
+            {% if monthly_data %}
             <div class="h-64 flex items-end justify-between gap-2 px-4">
-                <!-- Fake Bars -->
-                <div class="w-full bg-primary/10 rounded-t-lg relative group h-[40%]">
+                {% for month in monthly_data %}
+                <div class="w-full bg-primary{% if forloop.last %} shadow-lg shadow-primary/20{% else %}/{{ month.percentage|default:10 }}{% endif %} rounded-t-lg relative group"
+                    style="height: {{ month.percentage }}%">
                     <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">40%</span>
+                        class="absolute -top-8 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">{{ month.total|floatformat:0 }} ج</span>
                 </div>
-                <div class="w-full bg-primary/20 rounded-t-lg relative group h-[60%]">
-                    <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">60%</span>
-                </div>
-                <div class="w-full bg-primary/40 rounded-t-lg relative group h-[35%]">
-                    <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">35%</span>
-                </div>
-                <div class="w-full bg-primary/30 rounded-t-lg relative group h-[80%]">
-                    <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">80%</span>
-                </div>
-                <div class="w-full bg-primary/50 text-white rounded-t-lg relative group h-[65%]">
-                    <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">65%</span>
-                </div>
-                <div
-                    class="w-full bg-primary text-white rounded-t-lg relative group h-[90%] shadow-lg shadow-primary/20">
-                    <span
-                        class="absolute -top-6 inset-x-0 text-center text-xs font-bold text-gray-500 hidden group-hover:block">90%</span>
-                </div>
+                {% endfor %}
             </div>
             <div class="flex justify-between mt-4 text-xs font-bold text-gray-400 uppercase">
-                <span>يناير</span>
-                <span>فبراير</span>
-                <span>مارس</span>
-                <span>أبريل</span>
-                <span>مايو</span>
-                <span>يونيو</span>
+                {% for month in monthly_data %}
+                <span>{{ month.month|date:"F" }}</span>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2 opacity-50">bar_chart</span>
+                    <p>لا توجد بيانات إيرادات لعرضها</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
-        <!-- Appointment Types -->
+        <!-- Top Services -->
         <div class="bg-white dark:bg-[#1a2e30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-lg text-[#111718] dark:text-white">أكثر الخدمات طلباً</h3>
-                <button class="text-gray-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined">more_horiz</span>
-                </button>
+                <a href="{% url 'visits_list' %}" class="text-gray-400 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                </a>
             </div>
+            {% if top_services %}
             <div class="space-y-6">
-                <!-- Item -->
+                {% for service in top_services %}
                 <div class="space-y-2">
                     <div class="flex justify-between text-sm font-bold">
-                        <span class="text-[#111718] dark:text-white">تنظيف الأسنان</span>
-                        <span class="text-gray-500">45%</span>
+                        <span class="text-[#111718] dark:text-white">{{ service.description|truncatechars:30 }}</span>
+                        <span class="text-gray-500">{{ service.percentage }}%</span>
                     </div>
                     <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                        <div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+                        <div class="{{ service.color }} h-full rounded-full" style="width: {{ service.percentage }}%">
+                        </div>
                     </div>
                 </div>
-                <!-- Item -->
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm font-bold">
-                        <span class="text-[#111718] dark:text-white">الحشوات التجميلية</span>
-                        <span class="text-gray-500">25%</span>
-                    </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                        <div class="bg-purple-500 h-full rounded-full" style="width: 25%"></div>
-                    </div>
-                </div>
-                <!-- Item -->
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm font-bold">
-                        <span class="text-[#111718] dark:text-white">التقويم</span>
-                        <span class="text-gray-500">20%</span>
-                    </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                        <div class="bg-orange-500 h-full rounded-full" style="width: 20%"></div>
-                    </div>
-                </div>
-                <!-- Item -->
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm font-bold">
-                        <span class="text-[#111718] dark:text-white">أخرى</span>
-                        <span class="text-gray-500">10%</span>
-                    </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                        <div class="bg-gray-400 h-full rounded-full" style="width: 10%"></div>
-                    </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="h-48 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2 opacity-50">medical_services</span>
+                    <p>لا توجد خدمات مسجلة بعد</p>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
