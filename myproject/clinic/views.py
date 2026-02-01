@@ -173,10 +173,12 @@ def patient_profile(request, id):
     current_tab = request.GET.get('tab', 'summary')
     
     # "Visits" are now completed appointments
-    visits = Appointment.objects.filter(
-        patient=patient, 
-        status='completed'
-    ).order_by('-date', '-time')
+    visits = (
+        Visit.objects
+        .filter(patient=patient)
+        .select_related('created_by')
+        .order_by('-visit_date')
+    )
     
     # "Appointments" are scheduled and in the future/today
     appointments = Appointment.objects.filter(

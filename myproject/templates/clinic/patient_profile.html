@@ -415,9 +415,15 @@
                                     <tbody class="divide-y divide-[#f0f4f4] dark:divide-[#2d4548]">
                                         {% for visit in visits %}
                                         <tr class="hover:bg-gray-50 dark:hover:bg-[#2d4548]/30 transition-colors">
-                                            <td class="p-4 font-medium">{{ visit.date }}</td>
+                                            <td class="p-4 font-medium">{{ visit.visit_date }}</td>
                                             <td class="p-4">{{ visit.notes|default:"-" }}</td>
-                                            <td class="p-4">{{ visit.created_by.get_full_name|default:"-" }}</td>
+                                            <td class="p-4">
+                                                {% if visit.created_by %}
+                                                {{ visit.created_by.get_full_name|default:visit.created_by.username }}
+                                                {% else %}
+                                                <span class="text-gray-400">غير محدد</span>
+                                                {% endif %}
+                                            </td>
                                             <td class="p-4">
                                                 <span
                                                     class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded-lg">مكتمل</span>
